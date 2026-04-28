@@ -23,6 +23,10 @@ use App\Http\Controllers\BarangayAdmin\BarangayResources\StreetController;
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\ResidentController;
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\HouseholdController;
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\FamilyController;
+use App\Http\Controllers\BarangayAdmin\ResidentInformation\SeniorCitizenController;
+use App\Http\Controllers\BarangayAdmin\ResidentInformation\VehicleController;
+use App\Http\Controllers\BarangayAdmin\ResidentInformation\EducationController;
+use App\Http\Controllers\BarangayAdmin\ResidentInformation\OccupationController;
 
 use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -41,7 +45,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeathController;
 use App\Http\Controllers\DisabilityController;
 
-use App\Http\Controllers\EducationController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\FamilyTreeController;
@@ -51,7 +54,6 @@ use App\Http\Controllers\InventoryController;
 
 use App\Http\Controllers\LivelihoodController;
 use App\Http\Controllers\MedicalInformationController;
-use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\PregnancyRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportGenerationController;
@@ -60,14 +62,12 @@ use App\Http\Controllers\ResidentAccountController;
 use App\Http\Controllers\ResidentMedicalConditionController;
 use App\Http\Controllers\ResidentMedicationController;
 use App\Http\Controllers\ResidentVaccinationController;
-use App\Http\Controllers\SeniorCitizenController;
 use App\Http\Controllers\SummonController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\SuperAdminDataController;
 use App\Http\Controllers\UnauthenticatedIssuanceController;
 
 
-use App\Http\Controllers\VehicleController;
 
 use App\Models\BarangayInfrastructure;
 use App\Models\BarangayInstitution;
