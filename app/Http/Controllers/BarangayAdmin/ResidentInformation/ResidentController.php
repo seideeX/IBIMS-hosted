@@ -461,44 +461,47 @@ class ResidentController extends Controller
                 if ($familyId) {
                     $family = Family::with('members.occupations')->find($familyId);
 
-                    if ($family) {
-                        $allIncomes = $family->members
-                            ->flatMap(
-                                fn($m) =>
-                                $m->occupations->filter(
-                                    fn($occupation) => is_null($occupation->ended_at) || $occupation->ended_at >= now()
-                                )
+                if ($family) {
+                    $allIncomes = $family->members
+                        ->flatMap(fn ($member) =>
+                            $member->occupations->filter(fn ($occupation) =>
+                                is_null($occupation->ended_at) ||
+                                (int) $occupation->ended_at >= now()->year
                             )
-                            ->pluck('monthly_income')
-                            ->filter();
+                        )
+                        ->pluck('monthly_income')
+                        ->filter();
 
-                        $totalIncome = $allIncomes->sum();
+                    $totalIncome = $allIncomes->sum();
 
-                        $incomeBracket = match (true) {
-                            $totalIncome < 5000 => 'below_5000',
-                            $totalIncome <= 10000 => '5001_10000',
-                            $totalIncome <= 20000 => '10001_20000',
-                            $totalIncome <= 40000 => '20001_40000',
-                            $totalIncome <= 70000 => '40001_70000',
-                            $totalIncome <= 120000 => '70001_120000',
-                            default => 'above_120001',
-                        };
+                    $incomeBracket = match (true) {
+                        $totalIncome < 12030 => 'poor',
+                        $totalIncome <= 24060 => 'low_income_non_poor',
+                        $totalIncome <= 48120 => 'lower_middle_income',
+                        $totalIncome <= 84210 => 'middle_middle_income',
+                        $totalIncome <= 144360 => 'upper_middle_income',
+                        $totalIncome <= 240600 => 'upper_income',
+                        default => 'rich',
+                    };
 
-                        $incomeCategory = match (true) {
-                            $totalIncome <= 10000 => 'survival',
-                            $totalIncome <= 20000 => 'poor',
-                            $totalIncome <= 40000 => 'low_income',
-                            $totalIncome <= 70000 => 'lower_middle_income',
-                            $totalIncome <= 120000 => 'middle_income',
-                            $totalIncome <= 200000 => 'upper_middle_income',
-                            default => 'above_high_income',
-                        };
+                    $incomeCategory = match ($incomeBracket) {
+                        'poor',
+                        'low_income_non_poor' => 'low_income',
 
-                        $family->update([
-                            'income_bracket' => $incomeBracket,
-                            'income_category' => $incomeCategory,
-                        ]);
-                    }
+                        'lower_middle_income',
+                        'middle_middle_income',
+                        'upper_middle_income' => 'middle_income',
+
+                        'upper_income',
+                        'rich' => 'high_income',
+                    };
+
+                    $family->update([
+                        'family_monthly_income' => $totalIncome,
+                        'income_bracket' => $incomeBracket,
+                        'income_category' => $incomeCategory,
+                    ]);
+                }
                 }
             }
 
@@ -573,41 +576,46 @@ class ResidentController extends Controller
 
             if ($familyId) {
                 $family = Family::with(['members.occupations'])->findOrFail($familyId);
-                $family->load(['members.occupations']);
 
-                // Sum all active monthly incomes
-                $sumIncome = $family->members->sum(function ($member) {
+                // 🔹 Total family income (DO NOT divide)
+                $totalIncome = $family->members->sum(function ($member) {
                     return $member->occupations
-                        ->filter(fn($occupation) => is_null($occupation->ended_at) || $occupation->ended_at >= now())
+                        ->filter(fn($occupation) =>
+                            is_null($occupation->ended_at) ||
+                            (int) $occupation->ended_at >= now()->year
+                        )
                         ->sum('monthly_income') ?? 0;
                 });
 
+                // 🔹 Optional: per capita (for analytics only)
                 $memberCount = $family->members->count();
-                $totalIncome = $memberCount > 0 ? $sumIncome / $memberCount : 0;
 
-                // Classify average income
+                // 🔹 PSA Brackets (based on TOTAL income)
                 $incomeBracket = match (true) {
-                    $totalIncome < 5000 => 'below_5000',
-                    $totalIncome <= 10000 => '5001_10000',
-                    $totalIncome <= 20000 => '10001_20000',
-                    $totalIncome <= 40000 => '20001_40000',
-                    $totalIncome <= 70000 => '40001_70000',
-                    $totalIncome <= 120000 => '70001_120000',
-                    default => 'above_120001',
+                    $totalIncome < 12030 => 'poor',
+                    $totalIncome <= 24060 => 'low_income_non_poor',
+                    $totalIncome <= 48120 => 'lower_middle_income',
+                    $totalIncome <= 84210 => 'middle_middle_income',
+                    $totalIncome <= 144360 => 'upper_middle_income',
+                    $totalIncome <= 240600 => 'upper_income',
+                    default => 'rich',
                 };
 
-                $incomeCategory = match (true) {
-                    $totalIncome <= 10000 => 'survival',
-                    $totalIncome <= 20000 => 'poor',
-                    $totalIncome <= 40000 => 'low_income',
-                    $totalIncome <= 70000 => 'lower_middle_income',
-                    $totalIncome <= 120000 => 'middle_income',
-                    $totalIncome <= 200000 => 'upper_middle_income',
-                    default => 'above_high_income',
+                $incomeCategory = match ($incomeBracket) {
+                    'poor',
+                    'low_income_non_poor' => 'low_income',
+
+                    'lower_middle_income',
+                    'middle_middle_income',
+                    'upper_middle_income' => 'middle_income',
+
+                    'upper_income',
+                    'rich' => 'high_income',
                 };
 
-                // Update family record
+                // 🔹 Update family record
                 $family->update([
+                    'family_monthly_income' => $totalIncome,
                     'income_bracket' => $incomeBracket,
                     'income_category' => $incomeCategory,
                 ]);
@@ -639,7 +647,7 @@ class ResidentController extends Controller
         try {
             // Validate all incoming form data
             $data = $request->validated();
-            //dd($data);
+
             // --- CREATE HOUSEHOLD RECORD ---
             // Collect and map the main household details
             $householdData = [
@@ -724,17 +732,16 @@ class ResidentController extends Controller
 
                 // Extract nested household data
                 $hhld = $data['household'] ?? null;
-                dd($hhld);
 
                 if ($hhld) {
                     // --- CREATE FAMILIES ---
                     foreach ($hhld['families'] ?? [] as $familyData) {
-
                         $family = Family::create([
                             'barangay_id' => $barangayId,
                             'household_id' => $household->id,
-                            'income_bracket' =>  $hhld['income_bracket'] ?? null,
-                            'income_category' =>  $hhld['income_category'] ?? null,
+                            'family_monthly_income' => $familyData['family_monthly_income'] ?? 0,
+                            'income_bracket' => $familyData['income_bracket'] ?? null,
+                            'income_category' => $familyData['income_category'] ?? null,
                             'family_name' =>  null, // Will be updated later from head’s lastname
                             'family_type' =>  $familyData['family_type'] ?? null,
                         ]);
@@ -968,11 +975,11 @@ class ResidentController extends Controller
 
             DB::commit();
             // --- SUCCESS RESPONSE ---
-            dd('yes');
+            //dd('yes');
             return redirect()->route('resident.index')->with('success', 'Residents Household created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            dd('Residents Household could not be created: ' . $e->getMessage());
+            //dd('Residents Household could not be created: ' . $e->getMessage());
             // Handle and return any error that occurred
             return back()->with('error', 'Residents Household could not be created: ' . $e->getMessage());
         }
@@ -1447,37 +1454,50 @@ class ResidentController extends Controller
                 $resident->occupations()->createMany($normalizedOccupations);
 
                 // Recompute family's total and average monthly income
-               if ($familyId) {
+                if ($familyId) {
                     $family = Family::with('members.occupations')->find($familyId);
 
                     if ($family) {
                         $totalIncome = $family->members->sum(function ($member) {
                             return $member->occupations
-                                ->filter(fn($occupation) => is_null($occupation->ended_at) || $occupation->ended_at >= now())
+                                ->filter(fn ($occupation) =>
+                                    is_null($occupation->ended_at) ||
+                                    (int) $occupation->ended_at >= now()->year
+                                )
                                 ->sum('monthly_income') ?? 0;
                         });
 
+                        $memberCount = $family->members->count();
+
+                        $perCapitaIncome = $memberCount > 0
+                            ? $totalIncome / $memberCount
+                            : 0;
+
                         $incomeBracket = match (true) {
-                            $totalIncome < 5000 => 'below_5000',
-                            $totalIncome <= 10000 => '5001_10000',
-                            $totalIncome <= 20000 => '10001_20000',
-                            $totalIncome <= 40000 => '20001_40000',
-                            $totalIncome <= 70000 => '40001_70000',
-                            $totalIncome <= 120000 => '70001_120000',
-                            default => 'above_120001',
+                            $totalIncome < 12030 => 'poor',
+                            $totalIncome <= 24060 => 'low_income_non_poor',
+                            $totalIncome <= 48120 => 'lower_middle_income',
+                            $totalIncome <= 84210 => 'middle_middle_income',
+                            $totalIncome <= 144360 => 'upper_middle_income',
+                            $totalIncome <= 240600 => 'upper_income',
+                            default => 'rich',
                         };
 
-                        $incomeCategory = match (true) {
-                            $totalIncome <= 5000 => 'survival',
-                            $totalIncome <= 10000 => 'poor',
-                            $totalIncome <= 20000 => 'low_income',
-                            $totalIncome <= 40000 => 'lower_middle_income',
-                            $totalIncome <= 70000 => 'middle_income',
-                            $totalIncome <= 120000 => 'upper_middle_income',
-                            default => 'above_high_income',
+                        $incomeCategory = match ($incomeBracket) {
+                            'poor',
+                            'low_income_non_poor' => 'low_income',
+
+                            'lower_middle_income',
+                            'middle_middle_income',
+                            'upper_middle_income' => 'middle_income',
+
+                            'upper_income',
+                            'rich' => 'high_income',
                         };
 
                         $family->update([
+                            'family_monthly_income' => $totalIncome,
+                            'per_capita_income' => $perCapitaIncome,
                             'income_bracket' => $incomeBracket,
                             'income_category' => $incomeCategory,
                         ]);

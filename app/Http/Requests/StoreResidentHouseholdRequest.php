@@ -34,9 +34,29 @@ class StoreResidentHouseholdRequest extends FormRequest
             //Family Info
             //'household.family_name' => ['required', 'string', 'max:100'],
             'household.families.*.family_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'stepfamilies', 'grandparent', 'childless', 'cohabiting_partners', 'one_person_household', 'roommates'])],
-            'household.family_monthly_income' => ['required', 'numeric', 'min:0'],
-            'household.income_bracket' => ['required', 'string', 'max:155'],
-            'household.income_category' => ['required', 'string', 'max:155'],
+            'household.families.*.family_monthly_income' => ['required', 'numeric', 'min:0'],
+
+            'household.families.*.income_bracket' => [
+                'required',
+                Rule::in([
+                    'poor',
+                    'low_income_non_poor',
+                    'lower_middle_income',
+                    'middle_middle_income',
+                    'upper_middle_income',
+                    'upper_income',
+                    'rich',
+                ])
+            ],
+
+            'household.families.*.income_category' => [
+                'required',
+                Rule::in([
+                    'low_income',
+                    'middle_income',
+                    'high_income',
+                ])
+            ],
 
             //Housing Structure
             'ownership_type' => ['nullable', 'string', 'max:100'],

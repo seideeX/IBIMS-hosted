@@ -315,36 +315,38 @@ class FamilyController extends Controller
             $residents = Resident::with([
                 'occupations' => function ($q) {
                     $q->whereNull('ended_at')
-                        ->orWhere('ended_at', '>=', now());
+                        ->orWhere('ended_at', '>=', now()->year);
                 }
             ])->whereIn('id', $allResidentIds)->get();
 
             // Compute average income
-            $avgIncome = $residents
+            $totalIncome = $residents
                 ->flatMap(fn($r) => $r->occupations)
                 ->pluck('monthly_income')
                 ->filter()
-                ->avg() ?? 0;
+                ->sum() ?? 0;
 
             // Determine income levels
             $incomeBracket = match (true) {
-                $avgIncome < 5000 => 'below_5000',
-                $avgIncome <= 10000 => '5001_10000',
-                $avgIncome <= 20000 => '10001_20000',
-                $avgIncome <= 40000 => '20001_40000',
-                $avgIncome <= 70000 => '40001_70000',
-                $avgIncome <= 120000 => '70001_120000',
-                default => 'above_120001',
+                $totalIncome < 12030 => 'poor',
+                $totalIncome <= 24060 => 'low_income_non_poor',
+                $totalIncome <= 48120 => 'lower_middle_income',
+                $totalIncome <= 84210 => 'middle_middle_income',
+                $totalIncome <= 144360 => 'upper_middle_income',
+                $totalIncome <= 240600 => 'upper_income',
+                default => 'rich',
             };
 
-            $incomeCategory = match (true) {
-                $avgIncome <= 10000 => 'survival',
-                $avgIncome <= 20000 => 'poor',
-                $avgIncome <= 40000 => 'low_income',
-                $avgIncome <= 70000 => 'lower_middle_income',
-                $avgIncome <= 120000 => 'middle_income',
-                $avgIncome <= 200000 => 'upper_middle_income',
-                default => 'above_high_income',
+            $incomeCategory = match ($incomeBracket) {
+                'poor',
+                'low_income_non_poor' => 'low_income',
+
+                'lower_middle_income',
+                'middle_middle_income',
+                'upper_middle_income' => 'middle_income',
+
+                'upper_income',
+                'rich' => 'high_income',
             };
 
             // Delete any old family linked to this head (avoid duplicates)
@@ -356,8 +358,12 @@ class FamilyController extends Controller
             $family = Family::create([
                 'barangay_id'     => $headResident->barangay_id,
                 'household_id'    => $householdId,
+
+                'family_monthly_income' => $totalIncome, // 🔥 add this
+
                 'income_bracket'  => $incomeBracket,
                 'income_category' => $incomeCategory,
+
                 'family_type'     => $data['family_type'],
                 'family_name'     => $data['family_name'] ?? $headResident->lastname,
             ]);
@@ -684,34 +690,35 @@ class FamilyController extends Controller
             $residents = Resident::with([
                 'occupations' => fn($q) =>
                     $q->whereNull('ended_at')
-                        ->orWhere('ended_at', '>=', now())
+                    ->orWhere('ended_at', '>=', now()->year)
             ])->whereIn('id', $allResidentIds)->get();
 
-            $allIncomes = $residents
+            $totalIncome = $residents
                 ->flatMap(fn($r) => $r->occupations)
                 ->pluck('monthly_income')
-                ->filter();
-
-            $avgIncome = $allIncomes->avg() ?? 0;
+                ->filter()
+                ->sum() ?? 0;
 
             $incomeBracket = match (true) {
-                $avgIncome < 5000 => 'below_5000',
-                $avgIncome <= 10000 => '5001_10000',
-                $avgIncome <= 20000 => '10001_20000',
-                $avgIncome <= 40000 => '20001_40000',
-                $avgIncome <= 70000 => '40001_70000',
-                $avgIncome <= 120000 => '70001_120000',
-                default => 'above_120001',
+                $totalIncome < 12030 => 'poor',
+                $totalIncome <= 24060 => 'low_income_non_poor',
+                $totalIncome <= 48120 => 'lower_middle_income',
+                $totalIncome <= 84210 => 'middle_middle_income',
+                $totalIncome <= 144360 => 'upper_middle_income',
+                $totalIncome <= 240600 => 'upper_income',
+                default => 'rich',
             };
 
-            $incomeCategory = match (true) {
-                $avgIncome <= 10000 => 'survival',
-                $avgIncome <= 20000 => 'poor',
-                $avgIncome <= 40000 => 'low_income',
-                $avgIncome <= 70000 => 'lower_middle_income',
-                $avgIncome <= 120000 => 'middle_income',
-                $avgIncome <= 200000 => 'upper_middle_income',
-                default => 'above_high_income',
+            $incomeCategory = match ($incomeBracket) {
+                'poor',
+                'low_income_non_poor' => 'low_income',
+
+                'lower_middle_income',
+                'middle_middle_income',
+                'upper_middle_income' => 'middle_income',
+
+                'upper_income',
+                'rich' => 'high_income',
             };
 
             \DB::transaction(function () use (
@@ -723,10 +730,12 @@ class FamilyController extends Controller
                 $incomeBracket,
                 $incomeCategory,
                 $data,
-                $householdId
+                $householdId,
+                $totalIncome
             ) {
                 // 1) Update family metadata and align household
                 $family->update([
+                    'family_monthly_income' => $totalIncome, // 🔥 add this
                     'income_bracket' => $incomeBracket,
                     'income_category' => $incomeCategory,
                     'family_type' => $data['family_type'],

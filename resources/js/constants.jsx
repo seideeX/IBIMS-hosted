@@ -366,42 +366,42 @@ export const INCOME_CATEGORY_TEXT = {
 };
 
 export const INCOME_BRACKET_TEXT = {
-    below_5000: "Below ₱5,000",
-    "5001_10000": "₱5,001 - ₱10,000",
-    "10001_20000": "₱10,001 - ₱20,000",
-    "20001_40000": "₱20,001 - ₱40,000",
-    "40001_70000": "₱40,001 - ₱70,000",
-    "70001_120000": "₱70,001 - ₱120,000",
-    above_120001: "₱120,001 and above",
+    poor: "Below ₱12,030",
+    low_income_non_poor: "₱12,030 – ₱24,060",
+    lower_middle_income: "₱24,061 – ₱48,120",
+    middle_middle_income: "₱48,121 – ₱84,210",
+    upper_middle_income: "₱84,211 – ₱144,360",
+    upper_income: "₱144,361 – ₱240,600",
+    rich: "₱240,601 and above",
 };
 
 export const INCOME_BRACKETS = {
-    below_5000: {
-        label: "Survival",
+    poor: {
+        label: "Poor",
         className: "bg-red-100 text-red-700",
     },
-    "5001_10000": {
-        label: "Poor",
+    low_income_non_poor: {
+        label: "Low Income (Non-Poor)",
         className: "bg-orange-100 text-orange-700",
     },
-    "10001_20000": {
-        label: "Low Income",
+    lower_middle_income: {
+        label: "Lower Middle Income",
         className: "bg-yellow-100 text-yellow-700",
     },
-    "20001_40000": {
-        label: "Lower Middle Income",
+    middle_middle_income: {
+        label: "Middle Income",
         className: "bg-lime-100 text-lime-700",
     },
-    "40001_70000": {
-        label: "Middle Income",
+    upper_middle_income: {
+        label: "Upper Middle Income",
         className: "bg-green-100 text-green-700",
     },
-    "70001_120000": {
-        label: "Upper Middle Income",
+    upper_income: {
+        label: "Upper Income",
         className: "bg-emerald-100 text-emerald-700",
     },
-    above_120001: {
-        label: "High Income",
+    rich: {
+        label: "Rich",
         className: "bg-blue-100 text-blue-700",
     },
 };
