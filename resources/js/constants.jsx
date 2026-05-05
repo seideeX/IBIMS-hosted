@@ -10,11 +10,12 @@ export const RESIDENT_CIVIL_STATUS_TEXT = {
 };
 
 export const RESIDENT_EMPLOYMENT_STATUS_TEXT = {
-    student: "Student",
     employed: "Employed",
     unemployed: "Unemployed",
-    self_employed: "Self Employed",
-    under_employed: "Under Employed",
+    student: "Student",
+    child: "Child",
+    retired: "Retired",
+    homemaker: "Homemaker",
     not_applicable: "Not Applicable",
 };
 
@@ -311,11 +312,11 @@ export const EDUCATION_OSC_TEXT = {
 };
 
 export const EMPLOYMENT_TYPE_TEXT = {
-    full_time: "Full-time",
-    part_time: "Part-time",
+    full_time: "Full Time",
+    part_time: "Part Time",
     seasonal: "Seasonal",
     contractual: "Contractual",
-    self_employed: "Self-employed",
+    self_employed: "Self Employed",
 };
 
 export const OCCUPATION_STATUS_TEXT = {

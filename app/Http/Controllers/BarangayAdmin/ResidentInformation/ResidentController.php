@@ -639,7 +639,7 @@ class ResidentController extends Controller
         try {
             // Validate all incoming form data
             $data = $request->validated();
-
+            //dd($data);
             // --- CREATE HOUSEHOLD RECORD ---
             // Collect and map the main household details
             $householdData = [
@@ -724,10 +724,12 @@ class ResidentController extends Controller
 
                 // Extract nested household data
                 $hhld = $data['household'] ?? null;
+                dd($hhld);
 
                 if ($hhld) {
                     // --- CREATE FAMILIES ---
                     foreach ($hhld['families'] ?? [] as $familyData) {
+
                         $family = Family::create([
                             'barangay_id' => $barangayId,
                             'household_id' => $household->id,
@@ -966,11 +968,11 @@ class ResidentController extends Controller
 
             DB::commit();
             // --- SUCCESS RESPONSE ---
-            //dd('yes');
+            dd('yes');
             return redirect()->route('resident.index')->with('success', 'Residents Household created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            //dd('Residents Household could not be created: ' . $e->getMessage());
+            dd('Residents Household could not be created: ' . $e->getMessage());
             // Handle and return any error that occurred
             return back()->with('error', 'Residents Household could not be created: ' . $e->getMessage());
         }

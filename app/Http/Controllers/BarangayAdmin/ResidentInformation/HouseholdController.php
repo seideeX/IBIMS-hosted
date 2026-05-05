@@ -774,13 +774,17 @@ class HouseholdController extends Controller
 
     public function getLatestHouseNumber()
     {
-        $barangayId = Auth()->user()->barangay_id;
+        $barangayId = auth()->user()->barangay_id;
+
         try {
-            $latestHouse = Household::orderBy('house_number', 'desc')->where('barangay_id', $barangayId)->first();
+            $latestNumber = Household::where('barangay_id', $barangayId)
+                ->max('house_number'); // 🔥 more efficient
+
+            $nextNumber = $latestNumber ? $latestNumber + 1 : 1;
 
             return response()->json([
                 'success' => true,
-                'house_number' => $latestHouse ? (string)($latestHouse->house_number + 1) : null,
+                'house_number' => $nextNumber,
             ]);
         } catch (\Exception $e) {
             return response()->json([
