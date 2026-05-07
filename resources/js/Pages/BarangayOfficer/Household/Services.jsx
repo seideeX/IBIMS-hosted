@@ -26,6 +26,7 @@ import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
+import PageHeader from "@/Components/PageHeader";
 
 export default function Service({
     households,
@@ -93,7 +94,7 @@ export default function Service({
     ];
 
     const [visibleColumns, setVisibleColumns] = useState(
-        allColumns.map((col) => col.key)
+        allColumns.map((col) => col.key),
     );
 
     useEffect(() => {
@@ -117,7 +118,7 @@ export default function Service({
                 "bath",
             ].includes(key) &&
             value &&
-            value !== ""
+            value !== "",
     );
 
     useEffect(() => {
@@ -337,7 +338,9 @@ export default function Service({
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
                         onClick: () =>
                             router.visit(
-                                route("household.show", { household: house.id })
+                                route("household.show", {
+                                    household: house.id,
+                                }),
                             ),
                     },
                     {
@@ -345,7 +348,9 @@ export default function Service({
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
                         onClick: () =>
                             router.visit(
-                                route("household.edit", { household: house.id })
+                                route("household.edit", {
+                                    household: house.id,
+                                }),
                             ),
                     },
                     {
@@ -399,25 +404,47 @@ export default function Service({
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                        <div className="mb-6">
-                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
-                                <div className="p-2 bg-indigo-100 rounded-full">
-                                    <Home className="w-6 h-6 text-indigo-600" />
+                        <PageHeader
+                            title="Household Data Overview"
+                            description="Review, organize, and manage comprehensive household information across the barangays of the City of Ilagan, Isabela. Monitor residential records, household composition, geolocation details, and socio-economic data to support community profiling, disaster preparedness, governance, and effective public service delivery."
+                            icon={Home}
+                            badge={
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-200">
+                                        Household Registry
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                        Barangay / City Registry
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+                                        CDRRMO
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                                        Community Profiling
+                                    </span>
                                 </div>
-                                <div>
-                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                        Household Data Overview
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        Review and manage comprehensive
-                                        information about households within the
-                                        barangay. Access records, apply filters,
-                                        and maintain accurate data for effective
-                                        community planning.
-                                    </p>
+                            }
+                            iconWrapperClassName="bg-indigo-100 text-indigo-600 shadow-sm"
+                            containerClassName="border border-indigo-100 bg-gradient-to-r from-white via-slate-50 to-indigo-50/60 shadow-sm"
+                            titleClassName="tracking-tight"
+                            descriptionClassName="max-w-3xl text-sm leading-6 text-slate-600"
+                            actions={
+                                <div className="flex items-center gap-2">
+                                    <Link href={route("household.create")}>
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 bg-white text-blue-700 shadow-sm transition-all hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <HousePlus className="h-4 w-4" />
+                                            Add Household
+                                        </Button>
+                                    </Link>
                                 </div>
-                            </div>
-                        </div>
+                            }
+                        />
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-start gap-2 flex-wrap">
                                 <DynamicTableControls
@@ -468,19 +495,6 @@ export default function Service({
                                         </div>
                                     </div>
                                 </form>
-                                <Link href={route("household.create")}>
-                                    <div className="relative group z-50">
-                                        <Button
-                                            variant="outline"
-                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                        >
-                                            <HousePlus className="w-4 h-4" />
-                                        </Button>
-                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                            Add Household
-                                        </div>
-                                    </div>
-                                </Link>
                             </div>
                         </div>
 

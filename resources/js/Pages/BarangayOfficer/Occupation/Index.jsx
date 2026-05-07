@@ -49,6 +49,7 @@ import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
 import { toTitleCase } from "@/utils/stringFormat";
 import OccupationSidebarModal from "./Partials/OccupationSidebarModal";
+import PageHeader from "@/Components/PageHeader";
 
 export default function Index({
     occupations,
@@ -463,30 +464,47 @@ export default function Index({
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     {/* <pre>{JSON.stringify(occupations, undefined, 3)}</pre> */}
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                        <div className="mb-6">
-                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
-                                <div className="p-2 bg-yellow-100 rounded-full">
-                                    <Briefcase className="w-6 h-6 text-yellow-600" />
+                        <PageHeader
+                            title="Occupation Records"
+                            description="Manage and monitor resident occupation information across the barangays of the City of Ilagan, Isabela including employment status, profession, work classification, income source, and labor-related data. Maintain accurate occupational records to support workforce analysis, livelihood programs, economic planning, and community development initiatives."
+                            icon={Briefcase}
+                            badge={
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-200">
+                                        PESO Ilagan
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                        DOLE Region II
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                        Livelihood Programs
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                                        Workforce Analysis
+                                    </span>
                                 </div>
-                                <div>
-                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                        Occupation Records
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        Manage and track resident occupations,
-                                        including employment type, work
-                                        arrangement, and status. Use the tools
-                                        below to
-                                        <span className="font-medium">
-                                            {" "}
-                                            search, filter, and export
-                                        </span>{" "}
-                                        records for reporting and labor
-                                        insights.
-                                    </p>
+                            }
+                            iconWrapperClassName="bg-yellow-100 text-yellow-600 shadow-sm"
+                            containerClassName="border border-yellow-100 bg-gradient-to-r from-white via-slate-50 to-yellow-50/60 shadow-sm"
+                            titleClassName="tracking-tight"
+                            descriptionClassName="max-w-3xl text-sm leading-6 text-slate-600"
+                            actions={
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        className="flex items-center gap-2 border-blue-300 bg-white text-blue-700 shadow-sm transition-all hover:bg-blue-600 hover:text-white"
+                                        onClick={handleAddOccupation}
+                                        type="button"
+                                    >
+                                        <ListPlus className="h-4 w-4" />
+                                        Add Occupation
+                                    </Button>
                                 </div>
-                            </div>
-                        </div>
+                            }
+                        />
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-start gap-2 flex-wrap">
                                 <DynamicTableControls
@@ -541,18 +559,6 @@ export default function Index({
                                         </div>
                                     </div>
                                 </form>
-                                <div className="relative group z-50">
-                                    <Button
-                                        variant="outline"
-                                        className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                        onClick={handleAddOccupation}
-                                    >
-                                        <ListPlus className="w-4 h-4" />
-                                    </Button>
-                                    <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                        Add an Occupation
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         {showFilters && (

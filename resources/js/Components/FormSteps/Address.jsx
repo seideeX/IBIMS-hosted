@@ -1,10 +1,12 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import InputField from "@/Components/InputField";
 import DropdownInputField from "../DropdownInputField";
 import SelectField from "../SelectField";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
+import { MapPin, LoaderCircle } from "lucide-react";
+import useGeolocation from "@/hooks/useGetGeoLocation";
 
 const Address = ({ puroks, streets }) => {
     const { userData, setUserData, errors } = useContext(StepperContext);
@@ -41,6 +43,18 @@ const Address = ({ puroks, streets }) => {
         label: street.street_name,
         value: street.id.toString(),
     }));
+
+    const { location, gettingLocation, getCurrentLocation } = useGeolocation();
+
+    const handleGetLocation = () => {
+        getCurrentLocation((coords) => {
+            setUserData((prev) => ({
+                ...prev,
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+            }));
+        });
+    };
 
     useEffect(() => {
         const fetchLatestHouseNumber = async () => {
@@ -204,9 +218,27 @@ const Address = ({ puroks, streets }) => {
                                 </p>
                             </div>
 
-                            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
-                                Optional
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+                                    Optional
+                                </span>
+
+                                <button
+                                    type="button"
+                                    onClick={handleGetLocation}
+                                    disabled={gettingLocation}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {gettingLocation ? (
+                                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <MapPin className="h-4 w-4" />
+                                    )}
+                                    {gettingLocation
+                                        ? "Locating..."
+                                        : "Use Current Location"}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">

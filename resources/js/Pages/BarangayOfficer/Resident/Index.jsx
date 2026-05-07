@@ -15,6 +15,7 @@ import {
     FileText,
     FileUser,
     UsersRound,
+    UserPlus,
 } from "lucide-react";
 import * as CONSTANTS from "@/constants";
 import axios from "axios";
@@ -22,6 +23,7 @@ import useAppUrl from "@/hooks/useAppUrl";
 import { useQuery } from "@tanstack/react-query";
 import ExportButton from "@/Components/ExportButton";
 import { toTitleCase } from "@/utils/stringFormat";
+import PageHeader from "@/Components/PageHeader";
 
 // Lazy load heavy components
 const AdminLayout = lazy(() => import("@/Layouts/AdminLayout"));
@@ -766,7 +768,71 @@ export default function Index({
                                 isLoading={isChartLoading}
                                 welfareFilters={welfareFilters}
                             />
+                            <PageHeader
+                                title="Resident Information"
+                                description="Manage and monitor resident demographic information including personal profiles, civil status, employment, voter registration, contact details, and household affiliations. Maintain accurate resident records to support community profiling, public service delivery, disaster preparedness, and barangay planning initiatives."
+                                icon={UserRoundPlus}
+                                badge={
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                            Barangay/City Registry
+                                        </span>
 
+                                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                            PSA
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+                                            CDRRMO
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                                            Health Office
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-200">
+                                            COMELEC
+                                        </span>
+                                    </div>
+                                }
+                                iconWrapperClassName="bg-indigo-100 text-indigo-600 shadow-sm"
+                                containerClassName="border border-indigo-100 bg-gradient-to-r from-white via-slate-50 to-indigo-50/60 shadow-sm"
+                                titleClassName="tracking-tight"
+                                descriptionClassName="max-w-3xl text-sm leading-6 text-slate-600"
+                                actions={
+                                    <div className="flex items-center gap-2">
+                                        <Link href={route("resident.create")}>
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 bg-white text-blue-700 shadow-sm transition-all hover:bg-blue-600 hover:text-white"
+                                            >
+                                                <HousePlus className="h-4 w-4" />
+
+                                                <span className="hidden sm:inline">
+                                                    Add Household
+                                                </span>
+                                            </Button>
+                                        </Link>
+
+                                        <Link
+                                            href={route(
+                                                "resident.createresident",
+                                            )}
+                                        >
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-emerald-300 bg-white text-emerald-700 shadow-sm transition-all hover:bg-emerald-600 hover:text-white"
+                                            >
+                                                <UserRoundPlus className="h-4 w-4" />
+
+                                                <span className="hidden sm:inline">
+                                                    Add Resident
+                                                </span>
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                }
+                            />
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-start gap-2 flex-wrap">
                                     <Suspense
@@ -834,36 +900,6 @@ export default function Index({
                                             </div>
                                         </div>
                                     </form>
-                                    <Link href={route("resident.create")}>
-                                        <div className="relative group z-50">
-                                            <Button
-                                                variant="outline"
-                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                            >
-                                                <HousePlus className="w-4 h-4" />
-                                            </Button>
-                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                                Add Household
-                                            </div>
-                                            {/* Tooltip */}
-                                        </div>
-                                    </Link>
-                                    <Link
-                                        href={route("resident.createresident")}
-                                    >
-                                        <div className="relative group z-50">
-                                            <Button
-                                                variant="outline"
-                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                            >
-                                                <UserRoundPlus className="w-4 h-4" />
-                                            </Button>
-                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                                Add Resident
-                                            </div>
-                                            {/* Tooltip */}
-                                        </div>
-                                    </Link>
                                 </div>
                             </div>
                             {showFilters && (

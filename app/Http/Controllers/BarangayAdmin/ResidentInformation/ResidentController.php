@@ -975,7 +975,7 @@ class ResidentController extends Controller
 
             DB::commit();
             // --- SUCCESS RESPONSE ---
-            //dd('yes');
+            dd('Residents Household created successfully!', $data);
             return redirect()->route('resident.index')->with('success', 'Residents Household created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();

@@ -32,6 +32,7 @@ import * as CONSTANTS from "@/constants";
 import ActionMenu from "@/Components/ActionMenu";
 import ExportButton from "@/Components/ExportButton";
 import { toTitleCase } from "@/utils/stringFormat";
+import PageHeader from "@/Components/PageHeader";
 
 // Lazy load heavy form (optional)
 const SeniorForm = React.lazy(() => import("./SeniorForm"));
@@ -86,7 +87,7 @@ export default function Index({
             { key: "registered_senior", label: "Registered Senior" },
             { key: "actions", label: "Actions" },
         ],
-        []
+        [],
     );
 
     // visible columns persisted to localStorage
@@ -102,7 +103,7 @@ export default function Index({
     useEffect(() => {
         localStorage.setItem(
             "household_visible_columns",
-            JSON.stringify(visibleColumns)
+            JSON.stringify(visibleColumns),
         );
     }, [visibleColumns]);
 
@@ -147,10 +148,10 @@ export default function Index({
                 router.get(
                     route("senior_citizen.index", params),
                     {},
-                    { preserveState: true, preserveScroll: true }
+                    { preserveState: true, preserveScroll: true },
                 );
             }, 450),
-        [queryParams]
+        [queryParams],
     );
 
     // handlers
@@ -163,7 +164,7 @@ export default function Index({
         router.get(
             route("senior_citizen.index", params),
             {},
-            { preserveState: true, preserveScroll: true }
+            { preserveState: true, preserveScroll: true },
         );
     };
 
@@ -183,7 +184,7 @@ export default function Index({
                     setSelectedResident(residentCache[residentId]);
                 } else {
                     const response = await axios.get(
-                        `${APP_URL}/resident/showresident/${residentId}`
+                        `${APP_URL}/resident/showresident/${residentId}`,
                     );
                     setResidentCache((prev) => ({
                         ...prev,
@@ -197,13 +198,13 @@ export default function Index({
                 toast.error("Failed to fetch resident details");
             }
         },
-        [residentCache, APP_URL]
+        [residentCache, APP_URL],
     );
 
     const handleRegister = (id) => {
         // find resident record from props (paginated or plain)
         const resident = (initialSeniors?.data ?? initialSeniors)?.find(
-            (r) => r.id == id
+            (r) => r.id == id,
         );
         if (resident) {
             setIsModalOpen(true);
@@ -213,7 +214,7 @@ export default function Index({
                 "resident_name",
                 `${resident.firstname} ${resident.middlename ?? ""} ${
                     resident.lastname ?? ""
-                } ${resident.suffix ?? ""}`
+                } ${resident.suffix ?? ""}`,
             );
             setData("purok_number", resident.purok_number);
             setData("birthdate", resident.birthdate);
@@ -263,7 +264,7 @@ export default function Index({
         async (seniorId) => {
             try {
                 const response = await axios.get(
-                    `${APP_URL}/senior_citizen/seniordetails/${seniorId}`
+                    `${APP_URL}/senior_citizen/seniordetails/${seniorId}`,
                 );
                 const resident = response.data.seniordetails;
                 setSeniorDetails(resident);
@@ -273,7 +274,7 @@ export default function Index({
                     "resident_name",
                     `${resident.firstname} ${resident.middlename ?? ""} ${
                         resident.lastname ?? ""
-                    } ${resident.suffix ?? ""}`
+                    } ${resident.suffix ?? ""}`,
                 );
                 setData("purok_number", resident.purok_number);
                 setData("birthdate", resident.birthdate);
@@ -282,19 +283,19 @@ export default function Index({
                     "osca_id_number",
                     resident.seniorcitizen?.osca_id_number
                         ? resident.seniorcitizen.osca_id_number.toString()
-                        : ""
+                        : "",
                 );
                 setData(
                     "is_pensioner",
-                    resident.seniorcitizen?.is_pensioner || ""
+                    resident.seniorcitizen?.is_pensioner || "",
                 );
                 setData(
                     "pension_type",
-                    resident.seniorcitizen?.pension_type || ""
+                    resident.seniorcitizen?.pension_type || "",
                 );
                 setData(
                     "living_alone",
-                    resident.seniorcitizen?.living_alone || ""
+                    resident.seniorcitizen?.living_alone || "",
                 );
                 setData("senior_id", resident.seniorcitizen.id);
                 setData("_method", "PUT");
@@ -305,7 +306,7 @@ export default function Index({
                 toast.error("Failed to fetch senior details");
             }
         },
-        [APP_URL, setData]
+        [APP_URL, setData],
     );
 
     const handleDeleteClick = (id) => {
@@ -333,7 +334,7 @@ export default function Index({
                     {toTitleCase(
                         `${resident.firstname} ${resident.middlename ?? ""} ${
                             resident.lastname ?? ""
-                        }`
+                        }`,
                     )}
                     {resident.suffix ? `, ${resident.suffix}` : ""}
                 </Link>
@@ -428,7 +429,7 @@ export default function Index({
                             icon: <Trash2 className="w-4 h-4 text-red-600" />,
                             onClick: () =>
                                 handleDeleteClick(resident.seniorcitizen.id),
-                        }
+                        },
                     );
                 } else {
                     baseActions.push({
@@ -444,7 +445,7 @@ export default function Index({
                 );
             },
         }),
-        [calculateAge, handleEdit]
+        [calculateAge, handleEdit],
     );
 
     // success / error handling from server
@@ -480,24 +481,33 @@ export default function Index({
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                        <div className="mb-6">
-                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
-                                <div className="p-2 bg-yellow-100 rounded-full">
-                                    <IdCard className="w-6 h-6 text-yellow-600" />
+                        <PageHeader
+                            title="Senior Citizen Records"
+                            description="Manage and monitor senior citizen information including personal profiles, eligibility details, benefits status, and demographic data for the City of Ilagan, Isabela. Maintain accurate records to support healthcare programs, social services, emergency response planning, and community welfare initiatives for elderly residents across barangays."
+                            icon={IdCard}
+                            badge={
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                        Barangay/City Registry
+                                    </span>
+                                    <span className="inline-flex items-center rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-200">
+                                        OSCA
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                        City Health Office
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                                        CDRRMO
+                                    </span>
                                 </div>
-                                <div>
-                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                        Senior Citizen Records
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        Manage and track senior citizen
-                                        information. Quickly search, filter, or
-                                        export records to support programs and
-                                        services.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                            }
+                            iconWrapperClassName="bg-yellow-100 text-yellow-600 shadow-sm"
+                            containerClassName="border"
+                            titleClassName="tracking-tight"
+                            descriptionClassName="max-w-3xl text-sm leading-6 text-slate-600"
+                        />
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-start gap-2 flex-wrap">
                                 <DynamicTableControls
@@ -621,10 +631,10 @@ export default function Index({
                     registerSenior
                         ? "Register Senior Citizen"
                         : seniorDetails
-                        ? "Edit Senior Citizen Details"
-                        : selectedResident
-                        ? "Resident Details"
-                        : ""
+                          ? "Edit Senior Citizen Details"
+                          : selectedResident
+                            ? "Resident Details"
+                            : ""
                 }
             >
                 {selectedResident && (
