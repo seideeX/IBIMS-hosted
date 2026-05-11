@@ -30,7 +30,7 @@ class StoreOccupationRequest extends FormRequest
             ],
             'occupations' => ['required', 'array', 'min:1'],
             'occupations.*.occupation' => ['nullable', 'string', 'max:255'],
-            'occupations.*.employment_type' => ['nullable', 'in:full_time,part_time,seasonal,contractual,self_employed'],
+            'occupations.*.employment_type' => ['nullable', 'in:full_time,part_time,seasonal,contractual,self_employed,under_employed'],
             'occupations.*.occupation_status' => ['required', 'in:active,inactive,ended,retired,terminated,resigned'],
             'occupations.*.work_arrangement' => ['nullable', 'in:remote,on_site,hybrid'],
             'occupations.*.employer' => ['nullable', 'string', 'max:255'],

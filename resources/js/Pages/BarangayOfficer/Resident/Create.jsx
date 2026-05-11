@@ -267,7 +267,7 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
                             {
                                 duration: 3000,
                                 closeButton: true,
-                            }
+                            },
                         );
 
                         // ✅ Clear form and localStorage
@@ -369,8 +369,7 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
                         </StepperContext.Provider>
                     </div>
                 </div>
-
-                <div className="mt-5">
+                <div className="my-5">
                     <StepperController
                         handleClick={handleClick}
                         currentStep={currentStep}

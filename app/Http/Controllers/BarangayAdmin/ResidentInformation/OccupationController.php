@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\ResidentInformation;
 
 use App\Helpers\ActivityLogHelper;
+use App\Http\Controllers\Controller;
 use App\Models\Family;
 use App\Models\Occupation;
 use App\Http\Requests\StoreOccupationRequest;
@@ -175,17 +176,14 @@ class OccupationController extends Controller
         $resident = Resident::findOrFail($data['resident_id']);
 
         try {
-            $family = Family::with(['members.occupations'])->findOrFail($resident->family_id);
-
             $newOccupations = [];
 
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
                 foreach ($data['occupations'] as $occupationData) {
-                    // Normalize income based on frequency
-                    $income = match ($occupationData['income_frequency']) {
+                    $income = match ($occupationData['income_frequency'] ?? null) {
                         'monthly' => $occupationData['income'] ?? 0,
                         'weekly' => ($occupationData['income'] ?? 0) * 4,
-                        'bi-weekly' => ($occupationData['income'] ?? 0) * 2,
+                        'bi_weekly' => ($occupationData['income'] ?? 0) * 2,
                         'daily' => ($occupationData['income'] ?? 0) * 30,
                         'annually' => ($occupationData['income'] ?? 0) / 12,
                         default => $occupationData['income'] ?? null,
@@ -198,75 +196,88 @@ class OccupationController extends Controller
                         'work_arrangement' => $occupationData['work_arrangement'] ?? null,
                         'employer' => $occupationData['employer'] ?? null,
                         'is_ofw' => $occupationData['is_ofw'] ?? false,
-                        'is_main_livelihood' =>  $occupationData['is_main_livelihood'] ?? false,
-                        'started_at' => $occupationData['started_at'],
+                        'is_main_livelihood' => $occupationData['is_main_livelihood'] ?? false,
+                        'started_at' => $occupationData['started_at'] ?? null,
                         'ended_at' => $occupationData['ended_at'] ?? null,
                         'monthly_income' => $income,
                         'created_at' => now(),
-                        'updated_at' => now()
+                        'updated_at' => now(),
                     ];
 
                     ActivityLogHelper::log(
                         'Occupation',
-                        'update',
-                        "Updated Occupation record: {$occupationData['occupation']} for Resident ID: {$data['resident_id']}"
+                        'create',
+                        "Created occupation record: " . ($occupationData['occupation'] ?? 'N/A') . " for Resident ID: {$data['resident_id']}"
                     );
                 }
 
-                // Save all new occupations in one go
                 $resident->occupations()->createMany($newOccupations);
-
-                // Re-fetch occupations including newly created ones
-                $family->load(['members.occupations']);
-
-                $sumIncome = $family->members->sum(function ($member) {
-                    return $member->occupations
-                        ->filter(fn($occupation) => is_null($occupation->ended_at) || $occupation->ended_at >= now())
-                        ->sum('monthly_income') ?? 0;
-                });
-
-                $memberCount = $family->members->count();
-
-                $totalIncome = $memberCount > 0
-                    ? $sumIncome / $memberCount
-                    : 0;
-
-                // Bracket classification
-                $incomeBracket = match (true) {
-                    $totalIncome < 5000 => 'below_5000',
-                    $totalIncome <= 10000 => '5001_10000',
-                    $totalIncome <= 20000 => '10001_20000',
-                    $totalIncome <= 40000 => '20001_40000',
-                    $totalIncome <= 70000 => '40001_70000',
-                    $totalIncome <= 120000 => '70001_120000',
-                    default => 'above_120001',
-                };
-
-                $incomeCategory = match (true) {
-                    $totalIncome <= 5000 => 'survival',
-                    $totalIncome <= 10000 => 'poor',
-                    $totalIncome <= 20000 => 'low_income',
-                    $totalIncome <= 40000 => 'lower_middle_income',
-                    $totalIncome <= 70000 => 'middle_income',
-                    $totalIncome <= 120000 => 'upper_middle_income',
-                    default => 'above_high_income',
-                };
-
-                // Update family classification
-                $family->update([
-                    'income_bracket' => $incomeBracket,
-                    'income_category' => $incomeCategory,
-                ]);
-
-                $resident->update([
-                    'employment_status' => $data['employment_status']
-                ]);
             }
 
-            return redirect()->route('occupation.index')->with('success', 'Occupation(s) saved and family income updated.');
+            $resident->update([
+                'employment_status' => $data['employment_status'] ?? null,
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Calculate family income only if resident has family
+            |--------------------------------------------------------------------------
+            */
+            if ($resident->family_id) {
+                $family = Family::with(['members.occupations'])
+                    ->find($resident->family_id);
+
+                if ($family) {
+                    $sumIncome = $family->members->sum(function ($member) {
+                        return $member->occupations
+                            ->filter(function ($occupation) {
+                                return is_null($occupation->ended_at)
+                                    || $occupation->ended_at >= now()->year;
+                            })
+                            ->sum('monthly_income');
+                    });
+
+                    $memberCount = $family->members->count();
+
+                    $totalIncome = $memberCount > 0
+                        ? $sumIncome / $memberCount
+                        : 0;
+
+                    $incomeBracket = match (true) {
+                        $totalIncome < 5000 => 'below_5000',
+                        $totalIncome <= 10000 => '5001_10000',
+                        $totalIncome <= 20000 => '10001_20000',
+                        $totalIncome <= 40000 => '20001_40000',
+                        $totalIncome <= 70000 => '40001_70000',
+                        $totalIncome <= 120000 => '70001_120000',
+                        default => 'above_120001',
+                    };
+
+                    $incomeCategory = match (true) {
+                        $totalIncome <= 5000 => 'survival',
+                        $totalIncome <= 10000 => 'poor',
+                        $totalIncome <= 20000 => 'low_income',
+                        $totalIncome <= 40000 => 'lower_middle_income',
+                        $totalIncome <= 70000 => 'middle_income',
+                        $totalIncome <= 120000 => 'upper_middle_income',
+                        default => 'above_high_income',
+                    };
+
+                    $family->update([
+                        'income_bracket' => $incomeBracket,
+                        'income_category' => $incomeCategory,
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('occupation.index')
+                ->with('success', 'Occupation(s) saved successfully.');
         } catch (\Exception $e) {
             dd($e->getMessage());
-            return back()->withErrors(['error' => 'Occupation(s) could not be saved: ' . $e->getMessage()]);
+            return back()->withErrors([
+                'error' => 'Occupation(s) could not be saved: ' . $e->getMessage(),
+            ]);
         }
     }
 
@@ -296,17 +307,14 @@ class OccupationController extends Controller
         $resident = Resident::findOrFail($data['resident_id']);
 
         try {
-            $family = Family::with(['members.occupations'])->findOrFail($resident->family_id);
-
             $newOccupation = [];
 
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
                 foreach ($data['occupations'] as $occupationData) {
-                    // Normalize income based on frequency
-                    $income = match ($occupationData['income_frequency']) {
+                    $income = match ($occupationData['income_frequency'] ?? null) {
                         'monthly' => $occupationData['income'] ?? 0,
                         'weekly' => ($occupationData['income'] ?? 0) * 4,
-                        'bi-weekly' => ($occupationData['income'] ?? 0) * 2,
+                        'bi_weekly' => ($occupationData['income'] ?? 0) * 2,
                         'daily' => ($occupationData['income'] ?? 0) * 30,
                         'annually' => ($occupationData['income'] ?? 0) / 12,
                         default => $occupationData['income'] ?? null,
@@ -319,70 +327,74 @@ class OccupationController extends Controller
                         'work_arrangement' => $occupationData['work_arrangement'] ?? null,
                         'employer' => $occupationData['employer'] ?? null,
                         'is_ofw' => $occupationData['is_ofw'] ?? false,
-                        'is_main_livelihood' =>  $occupationData['is_main_livelihood'] ?? false,
-                        'started_at' => $occupationData['started_at'],
+                        'is_main_livelihood' => $occupationData['is_main_livelihood'] ?? false,
+                        'started_at' => $occupationData['started_at'] ?? null,
                         'ended_at' => $occupationData['ended_at'] ?? null,
                         'monthly_income' => $income,
                     ];
                 }
 
                 $occupation->update($newOccupation);
-
-                // Re-fetch occupations including newly created ones
-                $family->load(['members.occupations']);
-
-                $totalIncome = $family->members->sum(function ($member) {
-                    return $member->occupations
-                        ->filter(fn($occupation) => is_null($occupation->ended_at) || $occupation->ended_at >= now())
-                        ->sum('monthly_income') ?? 0;
-                });
-
-                // $memberCount = $family->members->count();
-
-                // $totalIncome = $memberCount > 0
-                //     ? $sumIncome / $memberCount
-                //     : 0;
-
-                // Bracket classification
-                $incomeBracket = match (true) {
-                    $totalIncome < 5000 => 'below_5000',
-                    $totalIncome <= 10000 => '5001_10000',
-                    $totalIncome <= 20000 => '10001_20000',
-                    $totalIncome <= 40000 => '20001_40000',
-                    $totalIncome <= 70000 => '40001_70000',
-                    $totalIncome <= 120000 => '70001_120000',
-                    default => 'above_120001',
-                };
-
-                $incomeCategory = match (true) {
-                    $totalIncome <= 5000 => 'survival',
-                    $totalIncome <= 10000 => 'poor',
-                    $totalIncome <= 20000 => 'low_income',
-                    $totalIncome <= 40000 => 'lower_middle_income',
-                    $totalIncome <= 70000 => 'middle_income',
-                    $totalIncome <= 120000 => 'upper_middle_income',
-                    default => 'above_high_income',
-                };
-
-                // Update family classification
-                $family->update([
-                    'income_bracket' => $incomeBracket,
-                    'income_category' => $incomeCategory,
-                ]);
-
-                $resident->update([
-                    'employment_status' => $data['employment_status']
-                ]);
             }
+
+            $resident->update([
+                'employment_status' => $data['employment_status'] ?? null,
+            ]);
+
+            if ($resident->family_id) {
+                $family = Family::with(['members.occupations'])
+                    ->find($resident->family_id);
+
+                if ($family) {
+                    $totalIncome = $family->members->sum(function ($member) {
+                        return $member->occupations
+                            ->filter(function ($occupation) {
+                                return is_null($occupation->ended_at)
+                                    || $occupation->ended_at >= now()->year;
+                            })
+                            ->sum('monthly_income');
+                    });
+
+                    $incomeBracket = match (true) {
+                        $totalIncome < 5000 => 'below_5000',
+                        $totalIncome <= 10000 => '5001_10000',
+                        $totalIncome <= 20000 => '10001_20000',
+                        $totalIncome <= 40000 => '20001_40000',
+                        $totalIncome <= 70000 => '40001_70000',
+                        $totalIncome <= 120000 => '70001_120000',
+                        default => 'above_120001',
+                    };
+
+                    $incomeCategory = match (true) {
+                        $totalIncome <= 5000 => 'survival',
+                        $totalIncome <= 10000 => 'poor',
+                        $totalIncome <= 20000 => 'low_income',
+                        $totalIncome <= 40000 => 'lower_middle_income',
+                        $totalIncome <= 70000 => 'middle_income',
+                        $totalIncome <= 120000 => 'upper_middle_income',
+                        default => 'above_high_income',
+                    };
+
+                    $family->update([
+                        'income_bracket' => $incomeBracket,
+                        'income_category' => $incomeCategory,
+                    ]);
+                }
+            }
+
             ActivityLogHelper::log(
                 'Occupation',
                 'update',
                 "Updated Occupation record ID: {$occupation->id} for Resident ID: {$data['resident_id']}"
             );
-            return redirect()->route('occupation.index')->with('success', 'Occupation(s) saved and family income updated.');
+
+            return redirect()
+                ->route('occupation.index')
+                ->with('success', 'Occupation updated successfully.');
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            return back()->withErrors(['error' => 'Occupation(s) could not be saved: ' . $e->getMessage()]);
+            return back()->withErrors([
+                'error' => 'Occupation could not be updated: ' . $e->getMessage(),
+            ]);
         }
     }
 

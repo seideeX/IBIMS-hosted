@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\ResidentInformation;
 
 use App\Helpers\ActivityLogHelper;
+use App\Http\Controllers\Controller;
 use App\Models\EducationalHistory;
 use App\Http\Requests\StoreEducationalHistoryRequest;
 use App\Http\Requests\UpdateEducationalHistoryRequest;

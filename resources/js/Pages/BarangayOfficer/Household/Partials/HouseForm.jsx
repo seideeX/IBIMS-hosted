@@ -9,6 +9,8 @@ import SelectField from "@/Components/SelectField";
 import YearDropdown from "@/Components/YearDropdown";
 import InputError from "@/Components/InputError";
 import RadioGroup from "@/Components/RadioGroup";
+import { MapPin, LoaderCircle, LocateFixed } from "lucide-react";
+import useGeolocation from "@/hooks/useGetGeoLocation";
 
 const SectionCard = ({ title, description, children }) => (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -156,6 +158,13 @@ export default function HouseForm({
         label: "Purok " + purok,
         value: purok.toString(),
     }));
+    const { gettingLocation, getCurrentLocation } = useGeolocation();
+    const handleGetLocation = () => {
+        getCurrentLocation((coords) => {
+            setData("latitude", coords.latitude);
+            setData("longitude", coords.longitude);
+        });
+    };
 
     const streetList = streets.map((street) => ({
         label: street.street_name,
@@ -659,25 +668,53 @@ export default function HouseForm({
                             </div>
 
                             {/* Coordinates */}
-                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
-                                <div className="mb-4 flex items-start justify-between gap-4">
-                                    <div>
-                                        <h3 className="text-base font-semibold text-slate-800">
-                                            Geographic Coordinates
-                                        </h3>
-                                        <p className="text-sm text-slate-500">
-                                            Add the exact household location for
-                                            mapping and disaster response
-                                            reference.
-                                        </p>
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm">
+                                <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                                    <div className="flex items-start gap-3">
+                                        <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700 shadow-sm">
+                                            <MapPin className="h-5 w-5" />
+                                        </div>
+
+                                        <div>
+                                            <h3 className="text-base font-semibold text-slate-800">
+                                                Geographic Coordinates
+                                            </h3>
+
+                                            <p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-500">
+                                                Add the exact household location
+                                                for mapping, monitoring,
+                                                disaster response, and emergency
+                                                reference purposes.
+                                            </p>
+                                        </div>
                                     </div>
-                                    <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-emerald-700 shadow-sm">
-                                        Optional
-                                    </span>
+
+                                    <div className="flex items-center gap-2">
+                                        <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-emerald-700 shadow-sm">
+                                            Optional
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleGetLocation}
+                                            disabled={gettingLocation}
+                                            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            {gettingLocation ? (
+                                                <LoaderCircle className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <LocateFixed className="h-4 w-4" />
+                                            )}
+
+                                            {gettingLocation
+                                                ? "Locating..."
+                                                : "Use Current Location"}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                                    <div>
+                                    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm backdrop-blur-sm transition hover:border-emerald-200">
                                         <InputField
                                             type="number"
                                             step="any"
@@ -692,16 +729,18 @@ export default function HouseForm({
                                             }
                                             placeholder="e.g., 16.9380"
                                         />
+
                                         <InputError
                                             message={errors.latitude}
                                             className="mt-1"
                                         />
-                                        <p className="mt-1 text-xs text-slate-500">
+
+                                        <p className="mt-2 text-xs text-slate-500">
                                             Valid range: -90 to 90.
                                         </p>
                                     </div>
 
-                                    <div>
+                                    <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm backdrop-blur-sm transition hover:border-emerald-200">
                                         <InputField
                                             type="number"
                                             step="any"
@@ -716,15 +755,51 @@ export default function HouseForm({
                                             }
                                             placeholder="e.g., 121.7600"
                                         />
+
                                         <InputError
                                             message={errors.longitude}
                                             className="mt-1"
                                         />
-                                        <p className="mt-1 text-xs text-slate-500">
+
+                                        <p className="mt-2 text-xs text-slate-500">
                                             Valid range: -180 to 180.
                                         </p>
                                     </div>
                                 </div>
+
+                                {(data.latitude || data.longitude) && (
+                                    <div className="mt-5 rounded-2xl border border-emerald-200 bg-white/80 p-4 shadow-sm">
+                                        <div className="flex items-start gap-3">
+                                            <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
+                                                <LocateFixed className="h-4 w-4" />
+                                            </div>
+
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-700">
+                                                    Current Coordinates
+                                                </p>
+
+                                                <div className="mt-1 space-y-1 text-sm text-slate-500">
+                                                    <p>
+                                                        Latitude:{" "}
+                                                        <span className="font-medium text-slate-700">
+                                                            {data.latitude ||
+                                                                "—"}
+                                                        </span>
+                                                    </p>
+
+                                                    <p>
+                                                        Longitude:{" "}
+                                                        <span className="font-medium text-slate-700">
+                                                            {data.longitude ||
+                                                                "—"}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* House Details */}

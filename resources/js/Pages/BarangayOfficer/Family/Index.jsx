@@ -365,54 +365,59 @@ export default function Index({ families, queryParams = null, puroks }) {
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <PageHeader
                             title="Family Records"
-                            description="Manage, organize, and monitor all registered families and households within the barangay. Keep records updated for accurate reporting and community planning."
+                            description="Manage, organize, and monitor all registered families and households within the barangays of the City of Ilagan, Isabela. Maintain updated family composition, household affiliations, and demographic information to support community profiling, social services, disaster preparedness, and local governance initiatives."
                             icon={Users}
-                            iconWrapperClassName="bg-blue-100 text-blue-600 shadow-sm"
-                            // ✅ Optional badge (quick info)
                             badge={
-                                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
-                                    {/* Replace with dynamic value */}
-                                    {totalFamilies ?? 0} Families
-                                </span>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                        {totalFamilies ?? 0} Registered Families
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                        CSWDO
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+                                        CDRRMO Ilagan
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                                        Barangay / City Registry
+                                    </span>
+                                </div>
                             }
-                            // ✅ Actions
+                            iconWrapperClassName="bg-blue-100 text-blue-600 shadow-sm"
+                            containerClassName="border border-blue-100 bg-gradient-to-r from-white via-slate-50 to-blue-50/60 shadow-sm"
+                            titleClassName="tracking-tight"
+                            descriptionClassName="max-w-3xl text-sm leading-6 text-slate-600"
                             actions={
-                                <>
-                                    {/* Add Family */}
+                                <div className="flex flex-wrap items-center gap-2">
                                     <Link href={route("family.create")}>
                                         <Button
                                             variant="outline"
-                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white transition-all"
+                                            className="flex items-center gap-2 border-blue-300 bg-white text-blue-700 shadow-sm transition-all hover:bg-blue-600 hover:text-white"
                                         >
-                                            <PiUsersFourBold className="w-4 h-4" />
+                                            <PiUsersFourBold className="h-4 w-4" />
+
                                             <span className="hidden md:inline">
                                                 Add Family
                                             </span>
                                         </Button>
                                     </Link>
 
-                                    {/* <Button
-                                        variant="outline"
-                                        className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                        onClick={handleAddFamily}
-                                    >
-                                        <PiUsersFourBold className="w-4 h-4" />{" "}
-                                        Add Family
-                                    </Button> */}
-
-                                    {/* Add Household */}
                                     <Link href={route("resident.create")}>
                                         <Button
                                             variant="outline"
-                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white transition-all"
+                                            className="flex items-center gap-2 border-emerald-300 bg-white text-emerald-700 shadow-sm transition-all hover:bg-emerald-600 hover:text-white"
                                         >
-                                            <HousePlus className="w-4 h-4" />
+                                            <HousePlus className="h-4 w-4" />
+
                                             <span className="hidden md:inline">
                                                 Add Household
                                             </span>
                                         </Button>
                                     </Link>
-                                </>
+                                </div>
                             }
                         />
                         {/* <pre>{JSON.stringify(residents, undefined, 3)}</pre> */}

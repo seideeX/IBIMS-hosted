@@ -86,12 +86,12 @@ class StoreResidentRequest extends FormRequest
             'occupations' => ['nullable', 'array'],
             'employment_status' => [
                 'required_with:occupations.*.occupation',
-                Rule::in(['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker', 'not_applicable']),
+                Rule::in(['employed', 'unemployed', 'student','child','retired','homemaker', 'not_applicable']),
             ],
             'occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'occupations.*.employment_type' => [
                 'nullable',
-                Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed']),
+                Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed', 'under_employed']),
             ],
             'occupations.*.occupation_status' => [
                 'nullable',
@@ -137,7 +137,7 @@ class StoreResidentRequest extends FormRequest
             'disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
 
             // SECTION 5: Housing Information
-            'housenumber' => ['nullable', 'integer', 'min:1', 'max:9999'],
+            'housenumber' => ['nullable', 'string', 'max:100'],
             'new_housenumber' => ['nullable', 'integer', 'min:1', 'max:9999'],
             'street_id' => ['nullable', 'exists:streets,id'],
             'subdivision' => ['nullable', 'string', 'max:100'],

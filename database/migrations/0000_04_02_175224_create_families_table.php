@@ -11,32 +11,39 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('families', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('cascade');
-            $table->enum('income_bracket', [
-                'below_5000',
-                '5001_10000',
-                '10001_20000',
-                '20001_40000',
-                '40001_70000',
-                '70001_120000',
-                'above_120001'
-            ])->nullable();
-            $table->enum('income_category', [
-                'survival',
-                'poor',
-                'low_income',
-                'lower_middle_income',
-                'middle_income',
-                'upper_middle_income',
-                'above_high_income'
-            ])->nullable();
-            $table->string('family_name', 55)->nullable();
-            $table->string('family_type', 55)->nullable();
-            $table->timestamps();
-        });
+    Schema::create('families', function (Blueprint $table) {
+        $table->id();
+
+        $table->foreignId('barangay_id')
+            ->constrained('barangays')
+            ->onDelete('cascade');
+
+        $table->foreignId('household_id')
+            ->nullable()
+            ->constrained('households')
+            ->onDelete('cascade');
+        $table->decimal('family_monthly_income', 12, 2)->nullable();
+        $table->enum('income_bracket', [
+            'poor',
+            'low_income_non_poor',
+            'lower_middle_income',
+            'middle_middle_income',
+            'upper_middle_income',
+            'upper_income',
+            'rich',
+        ])->nullable();
+
+        $table->enum('income_category', [
+            'low_income',
+            'middle_income',
+            'high_income',
+        ])->nullable();
+
+        $table->string('family_name', 55)->nullable();
+        $table->string('family_type', 55)->nullable();
+
+        $table->timestamps();
+    });
     }
 
 

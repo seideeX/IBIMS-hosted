@@ -22,6 +22,7 @@ import useAppUrl from "@/hooks/useAppUrl";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import VehicleForm from "./Partials/VehicleForm";
 import ExportButton from "@/Components/ExportButton";
+import PageHeader from "@/Components/PageHeader";
 
 export default function Index({
     vehicles,
@@ -330,25 +331,53 @@ export default function Index({
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                            <div className="mb-6">
-                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
-                                    <div className="p-2 bg-blue-100 rounded-full">
-                                        <Car className="w-6 h-6 text-blue-600" />
+                            <PageHeader
+                                title="Vehicle Records"
+                                description="Manage and monitor vehicle information within the barangay including ownership details, classifications, transportation usage, and mobility data. Maintain accurate records to support public safety, emergency response coordination, traffic management, and community profiling."
+                                icon={Car}
+                                badge={
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                            Land and Transportation Office
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                            CDRRMO
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+                                            Traffic Management Unit
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                                            Emergency Response Team
+                                        </span>
                                     </div>
-                                    <div>
-                                        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                            Vehicle Records
-                                        </h1>
-                                        <p className="text-sm text-gray-500">
-                                            Manage community vehicle data
-                                            including ownership, type, and
-                                            usage. Use the tools below to
-                                            search, filter, or export vehicle
-                                            records.
-                                        </p>
+                                }
+                                iconWrapperClassName="bg-blue-100 text-blue-600 shadow-sm"
+                                containerClassName="border border-blue-100 bg-gradient-to-r from-white via-slate-50 to-blue-50/60 shadow-sm"
+                                titleClassName="tracking-tight"
+                                descriptionClassName="max-w-3xl text-sm leading-6 text-slate-600"
+                                actions={
+                                    <div className="flex items-center gap-2">
+                                        <div className="group relative z-50">
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 bg-white text-blue-700 shadow-sm transition-all hover:bg-blue-600 hover:text-white"
+                                                onClick={handleAddVehicle}
+                                                type="button"
+                                            >
+                                                <ListPlus className="h-4 w-4" />
+                                                Add Vehicle
+                                            </Button>
+
+                                            <div className="absolute left-1/2 z-10 mt-2 w-max -translate-x-1/2 rounded-md bg-blue-700 px-3 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
+                                                Register a new vehicle record
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                }
+                            />
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-start gap-2 flex-wrap">
                                     <DynamicTableControls
@@ -398,17 +427,6 @@ export default function Index({
                                             </Button>
                                         </div>
                                     </form>
-                                    {/* Add vehicle */}
-                                    <div className="relative group z-50">
-                                        <Button
-                                            variant="outline"
-                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                            onClick={handleAddVehicle}
-                                            type="button"
-                                        >
-                                            <ListPlus />
-                                        </Button>
-                                    </div>
                                 </div>
                             </div>
                             {/* Filters */}

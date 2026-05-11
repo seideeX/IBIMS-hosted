@@ -1,10 +1,12 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import InputField from "@/Components/InputField";
 import DropdownInputField from "../DropdownInputField";
 import SelectField from "../SelectField";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
+import { MapPin, LoaderCircle } from "lucide-react";
+import useGeolocation from "@/hooks/useGetGeoLocation";
 
 const Address = ({ puroks, streets }) => {
     const { userData, setUserData, errors } = useContext(StepperContext);
@@ -42,6 +44,18 @@ const Address = ({ puroks, streets }) => {
         value: street.id.toString(),
     }));
 
+    const { location, gettingLocation, getCurrentLocation } = useGeolocation();
+
+    const handleGetLocation = () => {
+        getCurrentLocation((coords) => {
+            setUserData((prev) => ({
+                ...prev,
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+            }));
+        });
+    };
+
     useEffect(() => {
         const fetchLatestHouseNumber = async () => {
             try {
@@ -63,34 +77,38 @@ const Address = ({ puroks, streets }) => {
         };
 
         fetchLatestHouseNumber();
-    }, [APP_URL, setUserData]);
+    }, []); // ✅ only once
 
     return (
         <div className="w-full">
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white px-6 py-5">
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                {/* HEADER */}
+                <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 via-white to-blue-50 px-6 py-6">
                     <h2 className="text-2xl font-bold tracking-tight text-slate-800 md:text-3xl">
                         Household Address Information
                     </h2>
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
-                        Enter the complete household address details below to
-                        continue the registration process.
+
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                        Complete the household location details to ensure
+                        accurate identification and mapping.
                     </p>
                 </div>
 
-                <div className="space-y-8 px-6 py-6">
-                    <div>
-                        <div className="mb-4">
-                            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <div className="space-y-6 bg-slate-50/60 px-6 py-6">
+                    {/* PRIMARY */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="mb-5">
+                            <h3 className="text-base font-semibold text-slate-800">
                                 Primary Address Details
                             </h3>
                             <p className="mt-1 text-sm text-slate-500">
-                                Provide the exact house number and street name.
+                                Enter the main household identifier and street
+                                information.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-blue-300 hover:bg-white">
                                 <InputField
                                     type="text"
                                     label="House/Unit No./Lot/Blk No."
@@ -100,6 +118,9 @@ const Address = ({ puroks, streets }) => {
                                     placeholder="e.g., Lot 12 Blk 7 or Unit 3A"
                                     required
                                 />
+                                <p className="mt-2 text-xs text-slate-500">
+                                    Use the official house, lot, or unit number.
+                                </p>
                                 {errors.housenumber && (
                                     <p className="mt-2 text-sm font-medium text-red-500">
                                         {errors.housenumber}
@@ -107,7 +128,7 @@ const Address = ({ puroks, streets }) => {
                                 )}
                             </div>
 
-                            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-blue-300 hover:bg-white">
                                 <DropdownInputField
                                     type="text"
                                     label="Street Name"
@@ -117,6 +138,9 @@ const Address = ({ puroks, streets }) => {
                                     placeholder="e.g., Rizal St., Mabini Avenue"
                                     items={streetList}
                                 />
+                                <p className="mt-2 text-xs text-slate-500">
+                                    Selecting a street may auto-fill the purok.
+                                </p>
                                 {errors.street && (
                                     <p className="mt-2 text-sm font-medium text-red-500">
                                         {errors.street}
@@ -126,19 +150,20 @@ const Address = ({ puroks, streets }) => {
                         </div>
                     </div>
 
-                    <div className="border-t border-slate-200 pt-2">
-                        <div className="mb-4">
-                            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                    {/* ADDITIONAL */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="mb-5">
+                            <h3 className="text-base font-semibold text-slate-800">
                                 Additional Location Details
                             </h3>
                             <p className="mt-1 text-sm text-slate-500">
-                                Add subdivision and purok information for a more
-                                complete address.
+                                Add subdivision and purok for better
+                                classification.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-blue-300 hover:bg-white">
                                 <InputField
                                     type="text"
                                     label="Subdivision/Village/Compound"
@@ -147,6 +172,9 @@ const Address = ({ puroks, streets }) => {
                                     onChange={handleChange}
                                     placeholder="e.g., Villa Gloria Subdivision"
                                 />
+                                <p className="mt-2 text-xs text-slate-500">
+                                    Leave blank if not applicable.
+                                </p>
                                 {errors.subdivision && (
                                     <p className="mt-2 text-sm font-medium text-red-500">
                                         {errors.subdivision}
@@ -154,7 +182,7 @@ const Address = ({ puroks, streets }) => {
                                 )}
                             </div>
 
-                            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-blue-300 hover:bg-white">
                                 <SelectField
                                     type="text"
                                     label="Purok/Zone/Sitio/Cabisera"
@@ -165,6 +193,9 @@ const Address = ({ puroks, streets }) => {
                                     items={purok_numbers}
                                     required
                                 />
+                                <p className="mt-2 text-xs text-slate-500">
+                                    Helps group households by area.
+                                </p>
                                 {errors.purok && (
                                     <p className="mt-2 text-sm font-medium text-red-500">
                                         {errors.purok}
@@ -174,11 +205,91 @@ const Address = ({ puroks, streets }) => {
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3">
-                        <p className="text-sm text-slate-500">
-                            Make sure the address details are accurate to avoid
-                            duplicate household records and ensure proper
-                            mapping.
+                    {/* GEOLOCATION */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="mb-5 flex items-start justify-between">
+                            <div>
+                                <h3 className="text-base font-semibold text-slate-800">
+                                    Geolocation
+                                </h3>
+                                <p className="mt-1 text-sm text-slate-500">
+                                    Optional coordinates for mapping and
+                                    tracking.
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+                                    Optional
+                                </span>
+
+                                <button
+                                    type="button"
+                                    onClick={handleGetLocation}
+                                    disabled={gettingLocation}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {gettingLocation ? (
+                                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <MapPin className="h-4 w-4" />
+                                    )}
+                                    {gettingLocation
+                                        ? "Locating..."
+                                        : "Use Current Location"}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-blue-300 hover:bg-white">
+                                <InputField
+                                    type="number"
+                                    step="any"
+                                    label="Latitude"
+                                    name="latitude"
+                                    value={userData.latitude || ""}
+                                    onChange={handleChange}
+                                    placeholder="e.g., 16.605000"
+                                />
+                                <p className="mt-2 text-xs text-slate-500">
+                                    Range: -90 to 90
+                                </p>
+                                {errors.latitude && (
+                                    <p className="mt-2 text-sm font-medium text-red-500">
+                                        {errors.latitude}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-blue-300 hover:bg-white">
+                                <InputField
+                                    type="number"
+                                    step="any"
+                                    label="Longitude"
+                                    name="longitude"
+                                    value={userData.longitude || ""}
+                                    onChange={handleChange}
+                                    placeholder="e.g., 121.725000"
+                                />
+                                <p className="mt-2 text-xs text-slate-500">
+                                    Range: -180 to 180
+                                </p>
+                                {errors.longitude && (
+                                    <p className="mt-2 text-sm font-medium text-red-500">
+                                        {errors.longitude}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* FOOTNOTE */}
+                    <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-4">
+                        <p className="text-sm leading-6 text-slate-600">
+                            Ensure all address details are correct to avoid
+                            duplicate household records and support accurate
+                            barangay mapping.
                         </p>
                     </div>
                 </div>

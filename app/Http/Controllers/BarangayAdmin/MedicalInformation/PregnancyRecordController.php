@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\MedicalInformation;
 
 use App\Helpers\ActivityLogHelper;
+use App\Http\Controllers\Controller;
 use App\Models\PregnancyRecords;
 use App\Http\Requests\StorePregnancyRecordsRequest;
 use App\Http\Requests\UpdatePregnancyRecordsRequest;

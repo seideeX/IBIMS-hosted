@@ -15,6 +15,7 @@ class Family extends Model
         'household_id',
         'income_bracket',
         'income_category',
+        'family_monthly_income',
         'family_type',
         'family_name',
         'created_at',

@@ -24,7 +24,7 @@ class StoreResidentHouseholdRequest extends FormRequest
     {
         return [
             //Household Info
-            'housenumber' => ['required', 'string', 'max:55'],
+            'housenumber' => ['required', 'integer'],
             'subdivision' => ['nullable', 'string', 'max:100'],
             'street' => ['nullable', 'integer', 'min:1'],
             'purok' => ['required', 'integer', 'min:1'],
@@ -34,9 +34,29 @@ class StoreResidentHouseholdRequest extends FormRequest
             //Family Info
             //'household.family_name' => ['required', 'string', 'max:100'],
             'household.families.*.family_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'stepfamilies', 'grandparent', 'childless', 'cohabiting_partners', 'one_person_household', 'roommates'])],
-            'household.family_monthly_income' => ['required', 'numeric', 'min:0'],
-            'household.income_bracket' => ['required', 'string', 'max:155'],
-            'household.income_category' => ['required', 'string', 'max:155'],
+            'household.families.*.family_monthly_income' => ['required', 'numeric', 'min:0'],
+
+            'household.families.*.income_bracket' => [
+                'required',
+                Rule::in([
+                    'poor',
+                    'low_income_non_poor',
+                    'lower_middle_income',
+                    'middle_middle_income',
+                    'upper_middle_income',
+                    'upper_income',
+                    'rich',
+                ])
+            ],
+
+            'household.families.*.income_category' => [
+                'required',
+                Rule::in([
+                    'low_income',
+                    'middle_income',
+                    'high_income',
+                ])
+            ],
 
             //Housing Structure
             'ownership_type' => ['nullable', 'string', 'max:100'],
@@ -47,6 +67,8 @@ class StoreResidentHouseholdRequest extends FormRequest
             'number_of_floors' => ['nullable', 'integer', 'min:1', 'max:10'],
             'bath_and_wash_area' => ['nullable', 'string', 'max:100'],
             'type_of_internet' => ['nullable', 'string', 'max:100'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
 
             // Utilities
             'toilets' => ['nullable', 'array'],
@@ -134,9 +156,9 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // occupations
             'household.families.*.members.*.occupations' => ['nullable', 'array'],
-            'household.families.*.members.*.occupations.*.employment_status' => ['nullable', Rule::in(['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker', 'not_applicable'])],
+            'household.families.*.members.*.occupations.*.employment_status' => ['nullable', Rule::in(['employed', 'unemployed', 'student','child','retired','homemaker', 'not_applicable'])],
             'household.families.*.members.*.occupations.*.occupation' => ['nullable', 'string', 'max:100'],
-            'household.families.*.members.*.occupations.*.employment_type' => ['nullable', Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed'])],
+            'household.families.*.members.*.occupations.*.employment_type' => ['nullable', Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed', 'under_employed'])],
             'household.families.*.members.*.occupations.*.occupation_status' => ['nullable', Rule::in(['active', 'inactive', 'ended', 'retired','terminated', 'resigned'])],
             'household.families.*.members.*.occupations.*.work_arrangement' => ['nullable', Rule::in(['remote', 'on_site', 'hybrid'])],
             'household.families.*.members.*.occupations.*.employer' => ['nullable', 'string', 'max:100'],
