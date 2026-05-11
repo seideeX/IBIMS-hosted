@@ -31,6 +31,7 @@ import useAppUrl from "@/hooks/useAppUrl";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
+import PageHeader from "@/Components/PageHeader";
 
 export default function Index({ medical_information, puroks, queryParams }) {
     const breadcrumbs = [
@@ -118,7 +119,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
     ];
 
     const [visibleColumns, setVisibleColumns] = useState(
-        allColumns.map((col) => col.key)
+        allColumns.map((col) => col.key),
     );
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
@@ -136,7 +137,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
                 "is_pwd",
             ].includes(key) &&
             value &&
-            value !== ""
+            value !== "",
     );
 
     useEffect(() => {
@@ -268,7 +269,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
     const handleView = async (resident) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`,
             );
             setSelectedResident(response.data.resident);
         } catch (error) {
@@ -310,35 +311,52 @@ export default function Index({ medical_information, puroks, queryParams }) {
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                            <div className="mb-6">
-                                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl shadow-sm">
-                                    <div className="p-2 bg-blue-100 rounded-full">
-                                        <Stethoscope className="w-6 h-6 text-blue-600" />
+                            <PageHeader
+                                title="Medical Information"
+                                description="Manage and monitor resident medical information across the barangays of the City of Ilagan, Isabela including health profiles, nutrition status, blood type, vital measurements, medical conditions, and emergency contact details. Maintain accurate healthcare records to support emergency response, public health programs, welfare assessment, and community medical profiling."
+                                icon={Stethoscope}
+                                badge={
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                            City Health Office
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                            Barangay Health Workers
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+                                            Emergency Response
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                                            Medical Profiling
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-inset ring-slate-200">
+                                            City of Ilagan, Isabela
+                                        </span>
                                     </div>
-                                    <div>
-                                        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                            Medical Information
-                                        </h1>
-                                        <p className="text-sm text-gray-500">
-                                            This section contains essential
-                                            health details needed for{" "}
-                                            <span className="font-medium">
-                                                emergency response, welfare
-                                                assessment,
-                                            </span>{" "}
-                                            and accurate barangay medical
-                                            profiling. Please ensure that all
-                                            information such as{" "}
-                                            <span className="font-medium">
-                                                weight, height, blood type,
-                                                nutrition status,
-                                            </span>{" "}
-                                            and emergency contacts are accurate
-                                            and up to date.
-                                        </p>
+                                }
+                                iconWrapperClassName="bg-blue-100 text-blue-600 shadow-sm"
+                                containerClassName="border border-blue-100 bg-gradient-to-r from-white via-slate-50 to-blue-50/60 shadow-sm"
+                                titleClassName="tracking-tight"
+                                descriptionClassName="max-w-4xl text-sm leading-6 text-slate-600"
+                                actions={
+                                    <div className="flex items-center gap-2">
+                                        <Link href={route("medical.create")}>
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 bg-white text-blue-700 shadow-sm transition-all hover:bg-blue-600 hover:text-white"
+                                                type="button"
+                                            >
+                                                <ListPlus className="h-4 w-4" />
+                                                Add Medical Record
+                                            </Button>
+                                        </Link>
                                     </div>
-                                </div>
-                            </div>
+                                }
+                            />
 
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-start gap-2 flex-wrap">
@@ -379,7 +397,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
                                             onKeyDown={(e) =>
                                                 onKeyPressed(
                                                     "name",
-                                                    e.target.value
+                                                    e.target.value,
                                                 )
                                             }
                                             className="w-full"
