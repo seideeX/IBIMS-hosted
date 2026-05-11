@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\ResidentInformation;
 
+use App\Http\Controllers\Controller;
 use App\Models\Livestock;
 use App\Http\Requests\StoreLivestockRequest;
 use App\Http\Requests\UpdateLivestockRequest;

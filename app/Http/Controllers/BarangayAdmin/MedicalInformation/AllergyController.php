@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\MedicalInformation;
 
 use App\Helpers\ActivityLogHelper;
-use App\Models\MedicalCondition;
+use App\Http\Controllers\Controller;
+use App\Models\Allergy;
+use App\Http\Requests\StoreAllergyRequest;
+use App\Http\Requests\UpdateAllergyRequest;
 use App\Models\Purok;
-use App\Models\ResidentMedicalCondition;
-use App\Http\Requests\StoreResidentMedicalConditionRequest;
-use App\Http\Requests\UpdateResidentMedicalConditionRequest;
 use DB;
 use Inertia\Inertia;
 
-class ResidentMedicalConditionController extends Controller
+class AllergyController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,13 +19,18 @@ class ResidentMedicalConditionController extends Controller
     public function index()
     {
         $brgy_id = auth()->user()->barangay_id;
-        $filters = request()->only(['purok', 'sex', 'age_group', 'condition_status']);
+        $filters = request()->all();
 
         $puroks = Purok::where('barangay_id', $brgy_id)
             ->orderBy('purok_number', 'asc')
             ->pluck('purok_number');
 
-        $query = ResidentMedicalCondition::query()
+        $query = Allergy::query()
+            ->selectRaw("
+                resident_id,
+                GROUP_CONCAT(allergy_name SEPARATOR ', ') AS allergy_name,
+                GROUP_CONCAT(reaction_description SEPARATOR '; ') AS reaction_description
+            ")
             ->with([
                 'resident:id,firstname,lastname,suffix,birthdate,purok_number,sex',
                 'resident.medicalInformation:id,resident_id'
@@ -33,17 +38,17 @@ class ResidentMedicalConditionController extends Controller
             ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
                 $q->where('barangay_id', $brgy_id);
 
-                // ✅ Filter by Purok
+                // 🔹 Filter by Purok
                 if (!empty($filters['purok']) && $filters['purok'] !== "All") {
                     $q->where('purok_number', $filters['purok']);
                 }
 
-                // ✅ Filter by Sex
+                // 🔹 Filter by Sex
                 if (!empty($filters['sex']) && $filters['sex'] !== "All") {
                     $q->where('sex', $filters['sex']);
                 }
 
-                // ✅ Filter by Age Group
+                // 🔹 Filter by Age Group
                 if (!empty($filters['age_group']) && $filters['age_group'] !== "All") {
                     $today = now();
 
@@ -95,16 +100,17 @@ class ResidentMedicalConditionController extends Controller
                             break;
                     }
                 }
-            });
+            })->groupBy('resident_id');
 
-        // ✅ Filter by Condition Status
-        if (!empty($filters['condition_status']) && $filters['condition_status'] !== "All") {
-            $query->where('status', $filters['condition_status']);
+        // 🔹 Filter by Allergy Name
+        if (!empty($filters['allergy'])) {
+            $query->where('allergy_name', 'like', '%' . $filters['allergy'] . '%');
         }
+
         if (request('name')) {
             $search = request('name');
             $query->where(function ($q) use ($search) {
-                // Search resident-related fields
+                // Search resident fields
                 $q->whereHas('resident', function ($sub) use ($search) {
                     $sub->where(function ($r) use ($search) {
                         $r->where('firstname', 'like', '%' . $search . '%')
@@ -117,15 +123,33 @@ class ResidentMedicalConditionController extends Controller
                     });
                 });
 
-                // ✅ Search medical condition fields too
-                $q->orWhere('condition', 'like', '%' . $search . '%');
+                // Search medications
+                $q->orWhere('allergy_name', 'like', '%' . $search . '%');
+                $q->orWhere('reaction_description', 'like', '%' . $search . '%');
             });
         }
 
-        $medicalConditions = $query->paginate(10)->withQueryString();
+        $allergies = $query->paginate(10)->withQueryString();
 
-        return Inertia::render("BarangayOfficer/MedicalInformation/MedicalCondition/Index", [
-            "medicalConditions" => $medicalConditions,
+        // Add numbering based on pagination offset
+        $startNumber = ($allergies->currentPage() - 1) * $allergies->perPage() + 1;
+
+        $grouped = $allergies->getCollection()
+            ->groupBy('resident_id')
+            ->values()
+            ->map(function ($items, $index) use ($startNumber) {
+                $first = $items->first();
+
+                $first->allergy_name = $items->pluck('allergy_name')->filter()->join(', ');
+                $first->reaction_description = $items->pluck('reaction_description')->filter()->join('; ');
+                $first->number = $startNumber + $index; // ✅ Add number
+
+                return $first;
+            });
+
+        $allergies->setCollection($grouped);
+        return Inertia::render("BarangayOfficer/MedicalInformation/Allergy/Index", [
+            "allergies" => $allergies,
             "puroks" => $puroks,
             'queryParams' => request()->query() ?: null,
         ]);
@@ -142,7 +166,7 @@ class ResidentMedicalConditionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreResidentMedicalConditionRequest $request)
+    public function store(StoreAllergyRequest $request)
     {
         //
     }
@@ -150,7 +174,7 @@ class ResidentMedicalConditionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ResidentMedicalCondition $residentMedicalCondition)
+    public function show(Allergy $allergy)
     {
         //
     }
@@ -158,7 +182,7 @@ class ResidentMedicalConditionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ResidentMedicalCondition $residentMedicalCondition)
+    public function edit(Allergy $allergy)
     {
         //
     }
@@ -166,7 +190,7 @@ class ResidentMedicalConditionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateResidentMedicalConditionRequest $request, ResidentMedicalCondition $residentMedicalCondition)
+    public function update(UpdateAllergyRequest $request, Allergy $allergy)
     {
         //
     }
@@ -178,23 +202,23 @@ class ResidentMedicalConditionController extends Controller
     {
         DB::beginTransaction();
         try {
-            $residentMedicalCondition = ResidentMedicalCondition::findOrFail($id);
-            $residentMedicalCondition->delete();
+            $residentAllergy = Allergy::findOrFail($id);
+            $residentAllergy->delete();
             DB::commit();
 
             ActivityLogHelper::log(
                 'Medical Information',
                 'delete',
-                "Deleted Medical Condition record ID: {$id} for Resident ID: {$residentMedicalCondition->resident_id}"
+                "Deleted Allergy record ID: {$id} for Resident ID: {$residentAllergy->resident_id}"
             );
 
             return redirect()
-                ->route('medical_condition.index')
+                ->route('allergy.index')
                 ->with(
-                    'success', 'Medical condition deleted successfully!');
+                    'success', 'Allergy deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Medical condition could not be deleted: ' . $e->getMessage());
+            return back()->with('error', 'Allergy could not be deleted: ' . $e->getMessage());
         }
     }
 }

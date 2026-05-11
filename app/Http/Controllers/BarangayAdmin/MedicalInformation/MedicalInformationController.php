@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\BarangayAdmin\MedicalInformation;
 use App\Helpers\ActivityLogHelper;
+use App\Http\Controllers\Controller;
 use App\Models\Allergy;
 use App\Models\MedicalInformation;
 use App\Http\Requests\StoreMedicalInformationRequest;

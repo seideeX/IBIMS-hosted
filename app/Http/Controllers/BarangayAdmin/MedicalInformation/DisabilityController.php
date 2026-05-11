@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\MedicalInformation;
 
+use App\Http\Controllers\Controller;
 use App\Models\Disability;
 use App\Http\Requests\StoreDisabilityRequest;
 use App\Http\Requests\UpdateDisabilityRequest;

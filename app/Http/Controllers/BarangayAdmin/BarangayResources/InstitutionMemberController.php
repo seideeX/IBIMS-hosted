@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\BarangayResources;
 
+use App\Http\Controllers\Controller;
 use App\Models\BarangayInstitutionMember;
 use App\Http\Requests\StoreBarangayInstitutionMemberRequest;
 use App\Http\Requests\UpdateBarangayInstitutionMemberRequest;

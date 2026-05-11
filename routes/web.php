@@ -2,6 +2,7 @@
 
 use App\Exports\ResidentsExport;
 
+// BarangayInformation
 use App\Http\Controllers\BarangayAdmin\BarangayInformation\ActivityLogsController;
 use App\Http\Controllers\BarangayAdmin\BarangayInformation\UserController;
 use App\Http\Controllers\BarangayAdmin\BarangayInformation\BarangayController;
@@ -9,17 +10,21 @@ use App\Http\Controllers\BarangayAdmin\BarangayInformation\DocumentController;
 use App\Http\Controllers\BarangayAdmin\BarangayInformation\DocumentGenerationController;
 use App\Http\Controllers\BarangayAdmin\BarangayInformation\BarangayProfileController;
 
+// BarangayResources
 use App\Http\Controllers\BarangayAdmin\BarangayResources\BarangayInfrastructureController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\BarangayFacilityController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\BarangayInstitutionController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\BarangayManagementController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\BarangayOfficialController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\BarangayProjectController;
+use App\Http\Controllers\BarangayAdmin\BarangayResources\InventoryController;
+use App\Http\Controllers\BarangayAdmin\BarangayResources\InstitutionMemberController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\BarangayRoadController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\WaterController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\LandController;
 use App\Http\Controllers\BarangayAdmin\BarangayResources\StreetController;
 
+// ResidentInformation
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\ResidentController;
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\HouseholdController;
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\FamilyController;
@@ -27,41 +32,44 @@ use App\Http\Controllers\BarangayAdmin\ResidentInformation\SeniorCitizenControll
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\VehicleController;
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\EducationController;
 use App\Http\Controllers\BarangayAdmin\ResidentInformation\OccupationController;
+use App\Http\Controllers\BarangayAdmin\ResidentInformation\LivestockController;
+use App\Http\Controllers\BarangayAdmin\ResidentInformation\LivelihoodController;
 
-use App\Http\Controllers\AllergyController;
+
+// MedicalInformation
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\MedicalInformationController;
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\AllergyController;
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\PregnancyRecordController;
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\ChildHealthMonitoringController;
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\DeathController;
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\DisabilityController;
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\ResidentMedicalConditionController;
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\ResidentMedicationController;
+use App\Http\Controllers\BarangayAdmin\MedicalInformation\ResidentVaccinationController;
+
+
+
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
 use App\Http\Controllers\BlotterController;
 use App\Http\Controllers\CaseParticipantController;
 use App\Http\Controllers\CDRRMOAdminController;
 use App\Http\Controllers\CDRRMOSuperAdminController;
 use App\Http\Controllers\CertificateController;
-use App\Http\Controllers\ChildHealthMonitoringController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CRA\PDFController;
 use App\Http\Controllers\CRAController;
 use App\Http\Controllers\CRADataController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DeathController;
-use App\Http\Controllers\DisabilityController;
 
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\IBIMSController;
-use App\Http\Controllers\InstitutionMemberController;
-use App\Http\Controllers\InventoryController;
 
-use App\Http\Controllers\LivelihoodController;
-use App\Http\Controllers\MedicalInformationController;
-use App\Http\Controllers\PregnancyRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportGenerationController;
 use App\Http\Controllers\ResidentAccountController;
 
-use App\Http\Controllers\ResidentMedicalConditionController;
-use App\Http\Controllers\ResidentMedicationController;
-use App\Http\Controllers\ResidentVaccinationController;
 use App\Http\Controllers\SummonController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\SuperAdminDataController;
@@ -69,14 +77,10 @@ use App\Http\Controllers\UnauthenticatedIssuanceController;
 
 
 
-use App\Models\BarangayInfrastructure;
-use App\Models\BarangayInstitution;
 use App\Models\User;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Maatwebsite\Excel\Facades\Excel;
 
 
 Route::get('/', [IBIMSController::class, 'welcome'])->name('welcome'); // Welcome page accessible to both admin and resident

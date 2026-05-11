@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\MedicalInformation;
 
 use App\Helpers\ActivityLogHelper;
+use App\Http\Controllers\Controller;
 use App\Models\Purok;
-use App\Models\ResidentMedication;
-use App\Http\Requests\StoreResidentMedicationRequest;
-use App\Http\Requests\UpdateResidentMedicationRequest;
+use App\Models\ResidentVaccination;
+use App\Http\Requests\StoreResidentVaccinationRequest;
+use App\Http\Requests\UpdateResidentVaccinationRequest;
 use DB;
 use Inertia\Inertia;
 
-class ResidentMedicationController extends Controller
+class ResidentVaccinationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,55 +19,35 @@ class ResidentMedicationController extends Controller
     public function index()
     {
         $brgy_id = auth()->user()->barangay_id;
+        $filters = request()->all();
 
         $puroks = Purok::where('barangay_id', $brgy_id)
             ->orderBy('purok_number', 'asc')
             ->pluck('purok_number');
 
-        $query = ResidentMedication::query()
+        $query = ResidentVaccination::query()
             ->with([
                 'resident:id,firstname,lastname,suffix,birthdate,purok_number,sex',
                 'resident.medicalInformation:id,resident_id'
             ])
-            ->whereHas('resident', function ($q) use ($brgy_id) {
+            ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
                 $q->where('barangay_id', $brgy_id);
 
-            });
+                // 🔹 Filter by Purok
+                if (!empty($filters['purok']) && $filters['purok'] !== "All") {
+                    $q->where('purok_number', $filters['purok']);
+                }
 
-        if (request('name')) {
-            $search = request('name');
-            $query->where(function ($q) use ($search) {
-                // Search resident fields
-                $q->whereHas('resident', function ($sub) use ($search) {
-                    $sub->where(function ($r) use ($search) {
-                        $r->where('firstname', 'like', '%' . $search . '%')
-                            ->orWhere('lastname', 'like', '%' . $search . '%')
-                            ->orWhere('middlename', 'like', '%' . $search . '%')
-                            ->orWhere('suffix', 'like', '%' . $search . '%')
-                            ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $search . '%'])
-                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . $search . '%'])
-                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ['%' . $search . '%']);
-                    });
-                });
+                // 🔹 Filter by Sex
+                if (!empty($filters['sex']) && $filters['sex'] !== "All") {
+                    $q->where('sex', $filters['sex']);
+                }
 
-                // Search medications
-                $q->orWhere('medication', 'like', '%' . $search . '%');
-            });
-        }
+                // 🔹 Filter by Age Group
+                if (!empty($filters['age_group']) && $filters['age_group'] !== "All") {
+                    $today = now();
 
-        // ✅ Filters
-        if ($purok = request('purok')) {
-            $query->whereHas('resident', fn($q) => $q->where('purok_number', $purok));
-        }
-
-        if ($sex = request('sex')) {
-            $query->whereHas('resident', fn($q) => $q->where('sex', $sex));
-        }
-
-        if ($ageGroup = request('age_group')) {
-            $query->whereHas('resident', function ($q) use ($ageGroup) {
-                                    $today = now();
-                    switch (request('age_group')) {
+                    switch ($filters['age_group']) {
                         case '0_6_months':
                             $q->whereBetween('birthdate', [
                                 $today->copy()->subMonths(6),
@@ -113,27 +94,43 @@ class ResidentMedicationController extends Controller
                             $q->where('birthdate', '<=', $today->copy()->subYears(60));
                             break;
                     }
+                }
+            });
+
+        // 🔹 Filter by Vaccine
+        if (!empty($filters['vaccine']) && $filters['vaccine'] !== "All") {
+            $query->where('vaccine', $filters['vaccine']);
+        }
+
+        // 🔹 Filter by Vaccination Date
+        if (!empty($filters['vaccination_date'])) {
+            $query->whereDate('vaccination_date', $filters['vaccination_date']);
+        }
+        if (request('name')) {
+            $search = request('name');
+            $query->where(function ($q) use ($search) {
+                // Search resident fields
+                $q->whereHas('resident', function ($sub) use ($search) {
+                    $sub->where(function ($r) use ($search) {
+                        $r->where('firstname', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%')
+                            ->orWhere('middlename', 'like', '%' . $search . '%')
+                            ->orWhere('suffix', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $search . '%'])
+                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . $search . '%'])
+                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ['%' . $search . '%']);
+                    });
+                });
+
+                // Search medications
+                $q->orWhere('vaccine', 'like', '%' . $search . '%');
             });
         }
 
-        if ($medication = request('medication')) {
-            if ($medication !== 'All') {
-                $query->where('medication_name', $medication);
-            }
-        }
+        $vaccinations = $query->paginate(10)->withQueryString();
 
-        if ($startDate = request('start_date')) {
-            $query->whereDate('start_date', '>=', $startDate);
-        }
-
-        if ($endDate = request('end_date')) {
-            $query->whereDate('end_date', '<=', $endDate);
-        }
-
-        $medications = $query->paginate(10)->withQueryString();
-
-        return Inertia::render("BarangayOfficer/MedicalInformation/Medication/Index", [
-            "medications" => $medications,
+        return Inertia::render("BarangayOfficer/MedicalInformation/Vaccination/Index", [
+            "vaccinations" => $vaccinations,
             "puroks" => $puroks,
             'queryParams' => request()->query() ?: null,
         ]);
@@ -150,7 +147,7 @@ class ResidentMedicationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreResidentMedicationRequest $request)
+    public function store(StoreResidentVaccinationRequest $request)
     {
         //
     }
@@ -158,7 +155,7 @@ class ResidentMedicationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ResidentMedication $residentMedication)
+    public function show(ResidentVaccination $residentVaccination)
     {
         //
     }
@@ -166,7 +163,7 @@ class ResidentMedicationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ResidentMedication $residentMedication)
+    public function edit(ResidentVaccination $residentVaccination)
     {
         //
     }
@@ -174,7 +171,7 @@ class ResidentMedicationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateResidentMedicationRequest $request, ResidentMedication $residentMedication)
+    public function update(UpdateResidentVaccinationRequest $request, ResidentVaccination $residentVaccination)
     {
         //
     }
@@ -186,23 +183,23 @@ class ResidentMedicationController extends Controller
     {
         DB::beginTransaction();
         try {
-            $residentMedication = ResidentMedication::findOrFail($id);
-            $residentMedication->delete();
+            $residentVaccination = ResidentVaccination::findOrFail($id);
+            $residentVaccination->delete();
             DB::commit();
 
             ActivityLogHelper::log(
                 'Medical Information',
                 'delete',
-                "Deleted Medication record ID: {$id} for Resident ID: {$residentMedication->resident_id}"
+                "Deleted Vaccination record ID: {$id} for Resident ID: {$residentVaccination->resident_id}"
             );
 
             return redirect()
-                ->route('medication.index')
+                ->route('vaccination.index')
                 ->with(
-                    'success', 'Medication deleted successfully!');
+                    'success', 'Vaccination deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Medication could not be deleted: ' . $e->getMessage());
+            return back()->with('error', 'Vaccination could not be deleted: ' . $e->getMessage());
         }
     }
 }

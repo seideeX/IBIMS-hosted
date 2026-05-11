@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BarangayAdmin\MedicalInformation;
 
 use App\Helpers\ActivityLogHelper;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDeceasedRequest;
 use App\Http\Requests\UpdateDeceasedRequest;
 use App\Models\Deceased;
