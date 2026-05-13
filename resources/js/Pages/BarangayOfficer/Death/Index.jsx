@@ -32,6 +32,8 @@ import DropdownInputField from "@/Components/DropdownInputField";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import InputField from "@/Components/InputField";
+import DeathDetailsSidebarModal from "./Partials/DeathDetailsSidebarModal";
+import PageHeader from "@/Components/PageHeader";
 
 export default function Index({ deaths, puroks, queryParams, residents }) {
     const breadcrumbs = [
@@ -113,13 +115,13 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
         value: res.id.toString(),
     }));
     const [visibleColumns, setVisibleColumns] = useState(
-        allColumns.map((col) => col.key)
+        allColumns.map((col) => col.key),
     );
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
             ["purok", "sex", "age_group", "date_of_death"].includes(key) &&
             value &&
-            value !== ""
+            value !== "",
     );
 
     useEffect(() => {
@@ -176,7 +178,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
         age: (row) => {
             const age = calculateAgeAtDeath(
                 row.resident?.birthdate,
-                row.date_of_death
+                row.date_of_death,
             );
 
             if (age === null)
@@ -286,7 +288,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
             onError: (errors) => {
                 // console.error("Validation Errors:", errors);
                 const errorList = Object.values(errors).map(
-                    (msg, i) => `<div key=${i}> ${msg}</div>`
+                    (msg, i) => `<div key=${i}> ${msg}</div>`,
                 );
 
                 toast.error("Validation Error", {
@@ -310,7 +312,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
             onError: () => {
                 // console.error("Validation Errors:", errors);
                 const errorList = Object.values(errors).map(
-                    (msg, i) => `<div key=${i}> ${msg}</div>`
+                    (msg, i) => `<div key=${i}> ${msg}</div>`,
                 );
 
                 toast.error("Validation Error", {
@@ -351,7 +353,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                 "resident_name",
                 `${details.firstname} ${details.middlename ?? ""} ${
                     details.lastname
-                } ${details.suffix ?? ""}`.replace(/\s+/g, " ")
+                } ${details.suffix ?? ""}`.replace(/\s+/g, " "),
             );
             setData("purok_number", details.purok_number);
             setData("birthdate", details.birthdate);
@@ -366,7 +368,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
             setData("burial_date", details.burial_date ?? "");
             setData(
                 "death_certificate_number",
-                details.death_certificate_number ?? ""
+                details.death_certificate_number ?? "",
             );
             setData("remarks", details.remarks ?? "");
 
@@ -384,7 +386,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                 title = "Validation Error";
 
                 const errorList = Object.values(
-                    error.response.data.errors
+                    error.response.data.errors,
                 ).flat();
                 description = (
                     <ul className="list-disc ml-5">
@@ -415,7 +417,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
             onError: (errors) => {
                 //console.error("Validation Errors:", errors);
                 const errorList = Object.values(errors).map(
-                    (msg, i) => `<div key=${i}> ${msg}</div>`
+                    (msg, i) => `<div key=${i}> ${msg}</div>`,
                 );
 
                 toast.error("Validation Error", {
@@ -438,7 +440,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
         setModalState("view");
         try {
             const response = await axios.get(
-                `${APP_URL}/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`,
             );
             setSelectedResident(response.data.resident);
         } catch (error) {
@@ -480,30 +482,47 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                            <div className="mb-6">
-                                <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl shadow-sm">
-                                    <div className="p-2 bg-red-100 rounded-full">
-                                        <Cross className="w-6 h-6 text-red-600" />
+                            <PageHeader
+                                title="Death Records"
+                                description="Maintain and monitor resident death records across the barangays of the City of Ilagan, Isabela including cause of death, date of death, place of death, burial details, certificate information, and remarks. Keep accurate mortality records to support civil documentation, demographic reporting, public health monitoring, and barangay-level planning."
+                                icon={Cross}
+                                badge={
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-200">
+                                            Civil Registry
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-inset ring-slate-200">
+                                            Mortality Records
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+                                            Barangay Reports
+                                        </span>
+
+                                        <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                            Public Health
+                                        </span>
                                     </div>
-                                    <div>
-                                        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                            Death Records
-                                        </h1>
-                                        <p className="text-sm text-gray-500">
-                                            Maintain and monitor resident{" "}
-                                            <span className="font-medium">
-                                                death records
-                                            </span>
-                                            . Use the tools below to{" "}
-                                            <span className="font-medium">
-                                                search, filter, or export
-                                            </span>
-                                            information for reports and
-                                            documentation.
-                                        </p>
+                                }
+                                iconWrapperClassName="bg-red-100 text-red-600 shadow-sm"
+                                containerClassName="border border-red-100 bg-gradient-to-r from-white via-slate-50 to-red-50/60 shadow-sm"
+                                titleClassName="tracking-tight"
+                                descriptionClassName="max-w-3xl text-sm leading-6 text-slate-600"
+                                actions={
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-red-300 bg-white text-red-700 shadow-sm transition-all hover:bg-red-600 hover:text-white"
+                                            onClick={handleAddDeath}
+                                            type="button"
+                                        >
+                                            <SquarePlus className="h-4 w-4" />
+                                            Add Death Record
+                                        </Button>
                                     </div>
-                                </div>
-                            </div>
+                                }
+                            />
 
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -532,7 +551,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                                             onKeyDown={(e) =>
                                                 onKeyPressed(
                                                     "name",
-                                                    e.target.value
+                                                    e.target.value,
                                                 )
                                             }
                                             className="w-full"
@@ -547,18 +566,6 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                                             </Button>
                                             <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                                                 Search
-                                            </div>
-                                        </div>
-                                        <div className="relative group z-50">
-                                            <Button
-                                                className="bg-blue-700 hover:bg-blue-400 "
-                                                type={"button"}
-                                                onClick={handleAddDeath}
-                                            >
-                                                <SquarePlus />
-                                            </Button>
-                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                                Add Resident Death
                                             </div>
                                         </div>
                                     </form>
@@ -591,306 +598,21 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                         </div>
                     </div>
                 </div>
-                <SidebarModal
-                    isOpen={isModalOpen}
-                    onClose={handleModalClose}
-                    title={
-                        modalState === "add"
-                            ? deathDetails
-                                ? "Edit Resident Death Details"
-                                : "Add Resident Death Details"
-                            : "View Resident Details"
-                    }
-                >
-                    {modalState === "add" && (
-                        <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
-                            <form
-                                onSubmit={
-                                    deathDetails
-                                        ? handleEditSubmit
-                                        : handleAddSubmit
-                                }
-                                className="space-y-6"
-                            >
-                                <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-                                    Death Record –{" "}
-                                    {data.resident_name || "Select a Resident"}
-                                </h3>
-                                <p className="text-gray-600 mb-6 text-sm">
-                                    Please provide the death details of the
-                                    resident, including the official date of
-                                    death and supporting information.
-                                </p>
-
-                                {/* Resident Info Section */}
-                                <div className="grid grid-cols-1 md:grid-cols-6 gap-y-4 md:gap-x-6">
-                                    {/* Profile Photo */}
-                                    <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
-                                        <InputLabel
-                                            htmlFor="resident_image"
-                                            value="Profile Photo"
-                                        />
-                                        <img
-                                            src={
-                                                data.resident_image
-                                                    ? `/storage/${data.resident_image}`
-                                                    : "/images/default-avatar.jpg"
-                                            }
-                                            alt="Resident"
-                                            className="w-32 h-32 object-cover rounded-full border border-gray-200 shadow-sm"
-                                        />
-                                    </div>
-
-                                    {/* Resident Basic Info */}
-                                    <div className="md:col-span-4 space-y-4">
-                                        <div>
-                                            <DropdownInputField
-                                                label="Full Name"
-                                                name="resident_name"
-                                                value={data.resident_name || ""}
-                                                placeholder="Select a resident"
-                                                onChange={(e) =>
-                                                    handleResidentChange(e)
-                                                }
-                                                items={residentsList}
-                                                readOnly={deathDetails}
-                                            />
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                Choose the resident whose death
-                                                record is being created.
-                                            </p>
-                                            <InputError
-                                                message={errors.resident_id}
-                                                className="mt-1 text-sm text-red-500"
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div>
-                                                <InputField
-                                                    label="Birthdate"
-                                                    name="birthdate"
-                                                    value={data.birthdate || ""}
-                                                    readOnly
-                                                />
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    Automatically filled once a
-                                                    resident is selected.
-                                                </p>
-                                                <InputError
-                                                    message={errors.birthdate}
-                                                    className="mt-1 text-sm text-red-500"
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <InputField
-                                                    label="Purok Number"
-                                                    name="purok_number"
-                                                    value={data.purok_number}
-                                                    readOnly
-                                                />
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    The resident’s registered
-                                                    purok. Auto-filled.
-                                                </p>
-                                                <InputError
-                                                    message={
-                                                        errors.purok_number
-                                                    }
-                                                    className="mt-1 text-sm text-red-500"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Deceased Information Section */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <InputField
-                                            label="Cause of Death"
-                                            name="cause_of_death"
-                                            value={data.cause_of_death}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "cause_of_death",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="e.g., Illness, Accident"
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Specify the medical or situational
-                                            reason for death.
-                                        </p>
-                                        <InputError
-                                            message={errors.cause_of_death}
-                                            className="mt-1 text-sm text-red-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <InputField
-                                            label="Place of Death"
-                                            name="place_of_death"
-                                            value={data.place_of_death}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "place_of_death",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="e.g., Hospital, Home"
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Indicate where the death occurred.
-                                        </p>
-                                        <InputError
-                                            message={errors.place_of_death}
-                                            className="mt-1 text-sm text-red-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <InputField
-                                            label="Burial Place"
-                                            name="burial_place"
-                                            value={data.burial_place}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "burial_place",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="e.g., Municipal Cemetery"
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Location of the burial site.
-                                        </p>
-                                        <InputError
-                                            message={errors.burial_place}
-                                            className="mt-1 text-sm text-red-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <InputField
-                                            label="Burial Date"
-                                            name="burial_date"
-                                            type="date"
-                                            value={data.burial_date || ""}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "burial_date",
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Select the date when burial took
-                                            place.
-                                        </p>
-                                        <InputError
-                                            message={errors.burial_date}
-                                            className="mt-1 text-sm text-red-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <InputField
-                                            label="Death Certificate Number"
-                                            name="death_certificate_number"
-                                            value={
-                                                data.death_certificate_number
-                                            }
-                                            onChange={(e) =>
-                                                setData(
-                                                    "death_certificate_number",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="e.g., DC-12345"
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Enter the official certificate
-                                            number (if available).
-                                        </p>
-                                        <InputError
-                                            message={
-                                                errors.death_certificate_number
-                                            }
-                                            className="mt-1 text-sm text-red-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <InputField
-                                            label="Date of Death"
-                                            name="date_of_death"
-                                            type="date"
-                                            value={data.date_of_death || ""}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "date_of_death",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm
-                focus:border-indigo-500 focus:ring focus:ring-indigo-200
-                focus:ring-opacity-50 text-sm"
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Required. The exact date of death.
-                                        </p>
-                                        <InputError
-                                            message={errors.date_of_death}
-                                            className="mt-1 text-sm text-red-500"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Remarks */}
-                                <div>
-                                    <InputLabel value="Remarks" />
-                                    <textarea
-                                        name="remarks"
-                                        value={data.remarks}
-                                        onChange={(e) =>
-                                            setData("remarks", e.target.value)
-                                        }
-                                        placeholder="Additional notes about the death record..."
-                                        className="w-full mt-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm"
-                                        rows={3}
-                                    />
-                                    <InputError
-                                        message={errors.remarks}
-                                        className="mt-1 text-sm text-red-500"
-                                    />
-                                </div>
-
-                                {/* Submit Button */}
-                                <div className="flex justify-end items-center">
-                                    <Button
-                                        className="bg-blue-700 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md flex items-center gap-2"
-                                        type="submit"
-                                    >
-                                        {deathDetails ? "Update" : "Add"}{" "}
-                                        <MoveRight className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                            </form>
-                        </div>
-                    )}
-                    {modalState === "view" ? (
-                        selectedResident ? (
-                            <PersonDetailContent
-                                person={selectedResident}
-                                deceased={true}
-                            />
-                        ) : null
-                    ) : null}
-                </SidebarModal>
+                <DeathDetailsSidebarModal
+                    isModalOpen={isModalOpen}
+                    handleModalClose={handleModalClose}
+                    modalState={modalState}
+                    deathDetails={deathDetails}
+                    data={data}
+                    errors={errors}
+                    residentsList={residentsList}
+                    handleResidentChange={handleResidentChange}
+                    handleEditSubmit={handleEditSubmit}
+                    handleAddSubmit={handleAddSubmit}
+                    setData={setData}
+                    reset={reset}
+                    selectedResident={selectedResident}
+                />
                 <DeleteConfirmationModal
                     isOpen={isDeleteModalOpen}
                     onClose={() => {
