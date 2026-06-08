@@ -19,14 +19,8 @@
 // export default useAppUrl;
 
 // Dynamic URL based on environment
-import { useMemo } from "react";
+const APP_URL = window.location.origin;
 
-const useAppUrl = () => {
-    const API_URL = useMemo(() => {
-        return window.location.origin;
-    }, []);
-
-    return API_URL;
-};
+const useAppUrl = () => APP_URL;
 
 export default useAppUrl;
