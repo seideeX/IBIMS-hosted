@@ -29,6 +29,7 @@ import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControl
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import SidebarModal from "@/Components/SidebarModal";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
+import PageHeader from "@/Components/PageHeader";
 
 export default function Index({ children, queryParams, puroks }) {
     const breadcrumbs = [
@@ -53,7 +54,7 @@ export default function Index({ children, queryParams, puroks }) {
     const handleView = async (resident) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`,
             );
             setSelectedResident(response.data.resident);
         } catch (error) {
@@ -97,7 +98,7 @@ export default function Index({ children, queryParams, puroks }) {
     ];
 
     const [visibleColumns, setVisibleColumns] = useState(
-        allColumns.map((col) => col.key)
+        allColumns.map((col) => col.key),
     );
 
     useEffect(() => {
@@ -113,7 +114,7 @@ export default function Index({ children, queryParams, puroks }) {
         ([key, value]) =>
             ["purok", "sex", "birthdate", "nutritional_status"].includes(key) &&
             value &&
-            value !== ""
+            value !== "",
     );
 
     useEffect(() => {
@@ -129,8 +130,9 @@ export default function Index({ children, queryParams, puroks }) {
         resident_name: (child) => {
             const r = child.resident;
             if (!r) return "—";
-            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${r.lastname ?? ""
-                } ${r.suffix ?? ""}`.trim();
+            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${
+                r.lastname ?? ""
+            } ${r.suffix ?? ""}`.trim();
         },
 
         birthdate: (child) =>
@@ -169,14 +171,15 @@ export default function Index({ children, queryParams, puroks }) {
         sex: (child) => {
             return (
                 <span
-                    className={`px-2 py-1 text-sm rounded-lg ${CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[
-                        child.resident.sex
-                    ] ?? "bg-gray-100 text-gray-700"
-                        }`}
+                    className={`px-2 py-1 text-sm rounded-lg ${
+                        CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[
+                            child.resident.sex
+                        ] ?? "bg-gray-100 text-gray-700"
+                    }`}
                 >
                     {
                         CONSTANTS.RESIDENT_GENDER_TEXT2[
-                        child.resident.sex.replace("_", " ")
+                            child.resident.sex.replace("_", " ")
                         ]
                     }
                 </span>
@@ -197,8 +200,9 @@ export default function Index({ children, queryParams, puroks }) {
                 child.resident?.medical_information?.nutrition_status;
             return (
                 <span
-                    className={`px-2 py-1 text-sm rounded-lg ${statusColors[status] ?? "bg-gray-100 text-gray-700"
-                        }`}
+                    className={`px-2 py-1 text-sm rounded-lg ${
+                        statusColors[status] ?? "bg-gray-100 text-gray-700"
+                    }`}
                 >
                     {CONSTANTS.BMI_STATUS[status]}
                 </span>
@@ -213,9 +217,9 @@ export default function Index({ children, queryParams, puroks }) {
             // Assuming array is sorted (latest last), otherwise sort by date
             const latest = vax.reduce((latest, current) =>
                 new Date(current.vaccination_date) >
-                    new Date(latest.vaccination_date)
+                new Date(latest.vaccination_date)
                     ? current
-                    : latest
+                    : latest,
             );
             return (
                 <span className="text-sm text-indigo-600 font-medium">
@@ -288,30 +292,58 @@ export default function Index({ children, queryParams, puroks }) {
 
     return (
         <AdminLayout>
-            <Head title="Blotter Reports Dashboard" />
+            <Head title="Medical Information - Child Health Records" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <Toaster richColors />
             {/* <pre>{JSON.stringify(children, undefined, 2)}</pre> */}
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                        <div className="mb-6">
-                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
-                                <div className="p-2 bg-blue-100 rounded-full">
-                                    <Baby className="w-6 h-6 text-blue-600" />
+                        <PageHeader
+                            title="Child Health Records"
+                            description="Track and manage child health information across the barangays of the City of Ilagan, Isabela including growth monitoring, nutrition status, immunization history, and healthcare-related records. Maintain accurate child health data to support public health programs, nutrition initiatives, early intervention, and community healthcare planning."
+                            icon={Baby}
+                            badge={
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                        City Health Office
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                        Nutrition Programs
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+                                        Immunization Monitoring
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                                        Barangay Health Workers
+                                    </span>
+
+                                    <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-inset ring-slate-200">
+                                        City of Ilagan, Isabela
+                                    </span>
                                 </div>
-                                <div>
-                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                        Child Health Records
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        Track and manage child health information, including{" "}
-                                        <span className="font-medium">growth, nutrition, and immunization</span>.
-                                        Use the tools below to search, filter, and export records for healthcare programs.
-                                    </p>
+                            }
+                            iconWrapperClassName="bg-blue-100 text-blue-600 shadow-sm"
+                            containerClassName="border border-blue-100 bg-gradient-to-r from-white via-slate-50 to-blue-50/60 shadow-sm"
+                            titleClassName="tracking-tight"
+                            descriptionClassName="max-w-3xl text-sm leading-6 text-slate-600"
+                            actions={
+                                <div className="flex items-center gap-2">
+                                    <Link href={route("child_record.create")}>
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 bg-white text-blue-700 shadow-sm transition-all hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <ListPlus className="h-4 w-4" />
+                                            Add Record
+                                        </Button>
+                                    </Link>
                                 </div>
-                            </div>
-                        </div>
+                            }
+                        />
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <DynamicTableControls
@@ -355,19 +387,6 @@ export default function Index({ children, queryParams, puroks }) {
                                         </div>
                                     </div>
                                 </form>
-                                <Link href={route("child_record.create")}>
-                                    <div className="relative group z-50">
-                                        <Button
-                                            variant="outline"
-                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                        >
-                                            <ListPlus className="w-4 h-4" />
-                                        </Button>
-                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                            Add a Record
-                                        </div>
-                                    </div>
-                                </Link>
                             </div>
                         </div>
                         {showFilters && (
