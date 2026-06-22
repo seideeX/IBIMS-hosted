@@ -217,172 +217,172 @@ class BarangayDataSeeder extends Seeder
             /**
              * OFFICIAL TERM & SECRETARY
              */
-            // $term = BarangayOfficialTerm::factory()->create([
-            //     'barangay_id' => $barangay->id,
-            //     'term_start' => 2022,
-            //     'term_end' => 2025,
-            //     'status' => 'inactive',
-            // ]);
+            $term = BarangayOfficialTerm::factory()->create([
+                'barangay_id' => $barangay->id,
+                'term_start' => 2022,
+                'term_end' => 2025,
+                'status' => 'inactive',
+            ]);
 
-            // BarangayOfficial::factory()->create([
-            //     'resident_id' => $resident->id,
-            //     'term_id' => $term->id,
-            //     'position' => 'barangay_secretary',
-            //     'status' => 'inactive',
-            //     'appointment_type' => 'appointed',
-            // ]);
+            BarangayOfficial::factory()->create([
+                'resident_id' => $resident->id,
+                'term_id' => $term->id,
+                'position' => 'barangay_secretary',
+                'status' => 'inactive',
+                'appointment_type' => 'appointed',
+            ]);
 
             /**
              * HOUSEHOLDS & FAMILIES
              */
-            // Household::factory()
-            //     ->count(5)
-            //     ->for($barangay, 'barangay')
-            //     ->create()
-            //     ->each(function ($household) {
-            //         Livestock::factory()
-            //             ->count(rand(0, 5))
-            //             ->for($household, 'household')
-            //             ->create();
+            Household::factory()
+                ->count(5)
+                ->for($barangay, 'barangay')
+                ->create()
+                ->each(function ($household) {
+                    Livestock::factory()
+                        ->count(rand(0, 5))
+                        ->for($household, 'household')
+                        ->create();
 
-            //         HouseholdToilet::factory()
-            //             ->count(rand(1, 2))
-            //             ->for($household, 'household')
-            //             ->create();
+                    HouseholdToilet::factory()
+                        ->count(rand(1, 2))
+                        ->for($household, 'household')
+                        ->create();
 
-            //         HouseholdElectricitySource::factory()
-            //             ->for($household, 'household')
-            //             ->create();
+                    HouseholdElectricitySource::factory()
+                        ->for($household, 'household')
+                        ->create();
 
-            //         HouseholdWasteManagement::factory()
-            //             ->for($household, 'household')
-            //             ->create();
+                    HouseholdWasteManagement::factory()
+                        ->for($household, 'household')
+                        ->create();
 
-            //         HouseholdWaterSource::factory()
-            //             ->count(rand(1, 3))
-            //             ->for($household, 'household')
-            //             ->create();
-            //     });
+                    HouseholdWaterSource::factory()
+                        ->count(rand(1, 3))
+                        ->for($household, 'household')
+                        ->create();
+                });
 
-            // Family::factory(5)->create(['barangay_id' => $barangay->id]);
+            Family::factory(5)->create(['barangay_id' => $barangay->id]);
 
             /**
              * RESIDENTS + RELATED DATA
              */
-            // $residents = Resident::factory(20)->create(['barangay_id' => $barangay->id]);
+            $residents = Resident::factory(20)->create(['barangay_id' => $barangay->id]);
 
-            // foreach ($residents as $res) {
-            //     Occupation::factory(rand(1, 3))->create(['resident_id' => $res->id]);
-            //     EducationalHistory::factory(rand(1, 2))->create(['resident_id' => $res->id]);
-            //     ResidentVoterInformation::factory()->create(['resident_id' => $res->id]);
-            //     SocialWelfareProfile::factory()->create(['resident_id' => $res->id]);
+            foreach ($residents as $res) {
+                Occupation::factory(rand(1, 3))->create(['resident_id' => $res->id]);
+                EducationalHistory::factory(rand(1, 2))->create(['resident_id' => $res->id]);
+                ResidentVoterInformation::factory()->create(['resident_id' => $res->id]);
+                SocialWelfareProfile::factory()->create(['resident_id' => $res->id]);
 
-            //     if ($res->birthdate <= now()->subYears(60)) {
-            //         SeniorCitizen::factory()->create(['resident_id' => $res->id]);
-            //     }
+                if ($res->birthdate <= now()->subYears(60)) {
+                    SeniorCitizen::factory()->create(['resident_id' => $res->id]);
+                }
 
-            //     $medical = MedicalInformation::factory()->create(['resident_id' => $res->id]);
+                $medical = MedicalInformation::factory()->create(['resident_id' => $res->id]);
 
-            //     if (!empty($medical->pwd_id_number)) {
-            //         Disability::factory()->create(['resident_id' => $res->id]);
-            //         $res->update(['is_pwd' => 1]);
-            //     }
+                if (!empty($medical->pwd_id_number)) {
+                    Disability::factory()->create(['resident_id' => $res->id]);
+                    $res->update(['is_pwd' => 1]);
+                }
 
-            //     ResidentMedicalCondition::factory(rand(0, 3))->create(['resident_id' => $res->id]);
-            //     ResidentMedication::factory(rand(0, 2))->create(['resident_id' => $res->id]);
-            //     ResidentVaccination::factory(rand(0, 5))->create(['resident_id' => $res->id]);
-            //     Allergy::factory(rand(0, 2))->create(['resident_id' => $res->id]);
+                ResidentMedicalCondition::factory(rand(0, 3))->create(['resident_id' => $res->id]);
+                ResidentMedication::factory(rand(0, 2))->create(['resident_id' => $res->id]);
+                ResidentVaccination::factory(rand(0, 5))->create(['resident_id' => $res->id]);
+                Allergy::factory(rand(0, 2))->create(['resident_id' => $res->id]);
 
-            //     if ($res->gender === 'female' && $res->birthdate >= now()->subYears(45) && $res->birthdate <= now()->subYears(15)) {
-            //         PregnancyRecords::factory(rand(0, 2))->create(['resident_id' => $res->id]);
-            //     }
+                if ($res->gender === 'female' && $res->birthdate >= now()->subYears(45) && $res->birthdate <= now()->subYears(15)) {
+                    PregnancyRecords::factory(rand(0, 2))->create(['resident_id' => $res->id]);
+                }
 
-            //     if ($res->birthdate >= now()->subYears(5)) {
-            //         ChildHealthMonitoringRecord::factory(rand(1, 3))->create(['resident_id' => $res->id]);
-            //     }
+                if ($res->birthdate >= now()->subYears(5)) {
+                    ChildHealthMonitoringRecord::factory(rand(1, 3))->create(['resident_id' => $res->id]);
+                }
 
-            //     if ($res->is_deceased == 1) {
-            //         Deceased::factory()->create(['resident_id' => $res->id]);
-            //     }
-            // }
+                if ($res->is_deceased == 1) {
+                    Deceased::factory()->create(['resident_id' => $res->id]);
+                }
+            }
 
-            // Resident::where('barangay_id', $barangay->id)
-            //     ->orderBy('household_id')
-            //     ->chunkById(100, function ($group) {
-            //         $group->groupBy('household_id')->each(
-            //             fn($g) =>
-            //             $g->first()->update(['is_household_head' => 1, 'is_family_head' => 1])
-            //         );
-            //     });
+            Resident::where('barangay_id', $barangay->id)
+                ->orderBy('household_id')
+                ->chunkById(100, function ($group) {
+                    $group->groupBy('household_id')->each(
+                        fn($g) =>
+                        $g->first()->update(['is_household_head' => 1, 'is_family_head' => 1])
+                    );
+                });
 
             /**
              * SAMPLE USERS
              */
-            // foreach ($residents->take(15) as $i => $res) {
-            //     $user = User::factory()->create([
-            //         'barangay_id' => $barangay->id,
-            //         'resident_id' => $res->id,
-            //         'username' => 'Sample Resident ' . $i,
-            //         'email' => 'user' . $barangay->id . '_' . ($i + 1) . '@example.com',
-            //         'password' => Hash::make('user123'),
-            //         'email_verified_at' => now(),
-            //         'role' => $residentRole,
-            //         'status' => 'inactive',
-            //         'is_disabled' => false,
-            //     ]);
-            //     $user->assignRole($residentRole);
-            // }
+            foreach ($residents->take(15) as $i => $res) {
+                $user = User::factory()->create([
+                    'barangay_id' => $barangay->id,
+                    'resident_id' => $res->id,
+                    'username' => 'Sample Resident ' . $i,
+                    'email' => 'user' . $barangay->id . '_' . ($i + 1) . '@example.com',
+                    'password' => Hash::make('user123'),
+                    'email_verified_at' => now(),
+                    'role' => $residentRole,
+                    'status' => 'inactive',
+                    'is_disabled' => false,
+                ]);
+                $user->assignRole($residentRole);
+            }
 
-            // /**
-            //  * BLOTTERS / SUMMONS / HEARINGS
-            //  */
-            // BlotterReport::factory(20)
-            //     ->create(['barangay_id' => $barangay->id])
-            //     ->each(function ($blotter) {
-            //         $participants = CaseParticipant::factory(rand(2, 5))->state(['blotter_id' => $blotter->id])->create();
-            //         $summon = Summon::factory()->state(['blotter_id' => $blotter->id])->create();
+            /**
+             * BLOTTERS / SUMMONS / HEARINGS
+             */
+            BlotterReport::factory(20)
+                ->create(['barangay_id' => $barangay->id])
+                ->each(function ($blotter) {
+                    $participants = CaseParticipant::factory(rand(2, 5))->state(['blotter_id' => $blotter->id])->create();
+                    $summon = Summon::factory()->state(['blotter_id' => $blotter->id])->create();
 
-            //         $previous = null;
-            //         for ($i = 1; $i <= rand(1, 3); $i++) {
-            //             $date = $i === 1
-            //                 ? fake()->dateTimeBetween('-2 months', '+1 month')
-            //                 : fake()->dateTimeBetween($previous, $previous->modify('+1 month'));
+                    $previous = null;
+                    for ($i = 1; $i <= rand(1, 3); $i++) {
+                        $date = $i === 1
+                            ? fake()->dateTimeBetween('-2 months', '+1 month')
+                            : fake()->dateTimeBetween($previous, $previous->modify('+1 month'));
 
-            //             $status = $date > now()
-            //                 ? fake()->randomElement(['scheduled', 'cancelled'])
-            //                 : fake()->randomElement(['completed', 'adjourned', 'no_show']);
+                        $status = $date > now()
+                            ? fake()->randomElement(['scheduled', 'cancelled'])
+                            : fake()->randomElement(['completed', 'adjourned', 'no_show']);
 
-            //             $remarks = fake()->optional()->randomElement([
-            //                 'Initial summons issued',
-            //                 'Case still under mediation',
-            //                 'Escalated to higher authority',
-            //                 'Case resolved',
-            //                 'Dismissed'
-            //             ]);
+                        $remarks = fake()->optional()->randomElement([
+                            'Initial summons issued',
+                            'Case still under mediation',
+                            'Escalated to higher authority',
+                            'Case resolved',
+                            'Dismissed'
+                        ]);
 
-            //             $take = SummonTake::factory()->create([
-            //                 'summon_id' => $summon->id,
-            //                 'session_number' => $i,
-            //                 'hearing_date' => $date->format('Y-m-d'),
-            //                 'session_status' => $status,
-            //                 'session_remarks' => $remarks,
-            //             ]);
+                        $take = SummonTake::factory()->create([
+                            'summon_id' => $summon->id,
+                            'session_number' => $i,
+                            'hearing_date' => $date->format('Y-m-d'),
+                            'session_status' => $status,
+                            'session_remarks' => $remarks,
+                        ]);
 
-            //             foreach ($participants as $p) {
-            //                 SummonParticipantAttendance::factory()->create([
-            //                     'take_id' => $take->id,
-            //                     'participant_id' => $p->id,
-            //                 ]);
-            //             }
+                        foreach ($participants as $p) {
+                            SummonParticipantAttendance::factory()->create([
+                                'take_id' => $take->id,
+                                'participant_id' => $p->id,
+                            ]);
+                        }
 
-            //             $previous = $date;
-            //         }
-            //     });
+                        $previous = $date;
+                    }
+                });
 
             // /**
             //  * GEOGRAPHICAL DATA
             //  */
-            // $this->generateLandWater($barangay, $waterTypes, $waterNames, $landTypes, $landNames);
+             $this->generateLandWater($barangay, $waterTypes, $waterNames, $landTypes, $landNames);
         }
     }
 

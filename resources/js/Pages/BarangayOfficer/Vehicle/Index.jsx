@@ -23,6 +23,7 @@ import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import VehicleForm from "./Partials/VehicleForm";
 import ExportButton from "@/Components/ExportButton";
 import PageHeader from "@/Components/PageHeader";
+import useSearch from "@/hooks/useSearch";
 
 export default function Index({
     vehicles,
@@ -49,6 +50,8 @@ export default function Index({
     const [residentToDelete, setResidentToDelete] = useState(null);
 
     const [query, setQuery] = useState(queryParams.name ?? "");
+    const search = useSearch("vehicle.index", queryParams);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { data, setData, post, errors, reset, clearErrors } = useForm({
@@ -72,30 +75,6 @@ export default function Index({
             [column]: e.target.value,
         };
         setData(array, updated);
-    };
-
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        searchFieldName("name", query);
-    };
-
-    const searchFieldName = (field, value) => {
-        if (value && value.trim() !== "") {
-            queryParams[field] = value;
-        } else {
-            delete queryParams[field];
-        }
-
-        if (queryParams.page) {
-            delete queryParams.page;
-        }
-        router.get(route("vehicle.index", queryParams));
-    };
-
-    const onKeyPressed = (field, e) => {
-        if (e.key === "Enter") {
-            searchFieldName(field, e.target.value);
-        }
     };
 
     const addVehicle = () => {
@@ -402,7 +381,10 @@ export default function Index({
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
                                     {/* Search form */}
                                     <form
-                                        onSubmit={handleSearchSubmit}
+                                            onSubmit={(e) => {
+                                            e.preventDefault();
+                                            search("name", query);
+                                        }}
                                         className="flex w-[300px] max-w-lg items-center space-x-1"
                                     >
                                         <Input
