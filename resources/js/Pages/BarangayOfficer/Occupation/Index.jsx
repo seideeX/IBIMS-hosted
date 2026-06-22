@@ -50,6 +50,7 @@ import ExportButton from "@/Components/ExportButton";
 import { toTitleCase } from "@/utils/stringFormat";
 import OccupationSidebarModal from "./Partials/OccupationSidebarModal";
 import PageHeader from "@/Components/PageHeader";
+import useSearch from "@/hooks/useSearch";
 
 export default function Index({
     occupations,
@@ -69,29 +70,7 @@ export default function Index({
     const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        searchFieldName("name", query);
-    };
-    const searchFieldName = (field, value) => {
-        if (value && value.trim() !== "") {
-            queryParams[field] = value;
-        } else {
-            delete queryParams[field];
-        }
-
-        if (queryParams.page) {
-            delete queryParams.page;
-        }
-        router.get(route("occupation.index", queryParams));
-    };
-    const onKeyPressed = (field, e) => {
-        if (e.key === "Enter") {
-            searchFieldName(field, e.target.value);
-        } else {
-            return;
-        }
-    };
+    const search = useSearch("occupation.index", queryParams);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalState, setModalState] = useState("");
@@ -531,7 +510,10 @@ export default function Index({
                             </div>
                             <div className="flex items-center gap-2 flex-wrap justify-end">
                                 <form
-                                    onSubmit={handleSubmit}
+                                    onSubmit={(e) => {
+                                         e.preventDefault();
+                                        search("name", query);
+                                     }}
                                     className="flex w-[300px] max-w-lg items-center space-x-1"
                                 >
                                     <Input

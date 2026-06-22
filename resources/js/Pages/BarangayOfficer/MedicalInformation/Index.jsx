@@ -32,6 +32,7 @@ import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailC
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
 import PageHeader from "@/Components/PageHeader";
+import useSearch from "@/hooks/useSearch";
 
 export default function Index({ medical_information, puroks, queryParams }) {
     const breadcrumbs = [
@@ -50,56 +51,8 @@ export default function Index({ medical_information, puroks, queryParams }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
 
-    // const { data, setData, post, errors, reset, clearErrors } = useForm({
-    //     // Resident-level fields
-    //     resident_id: null,
-    //     resident_name: "", // (optional: if you want full name)
-    //     resident_image: null,
-    //     birthdate: null,
-    //     civil_status: "",
-    //     purok_number: null,
 
-    //     // Medical information fields
-    //     weight_kg: "",
-    //     height_cm: "",
-    //     bmi: "",
-    //     nutrition_status: "",
-    //     blood_type: "",
-    //     emergency_contact_number: "",
-    //     emergency_contact_name: "",
-    //     emergency_contact_relationship: "",
-    //     is_smoker: false,
-    //     is_alcohol_user: false,
-    //     has_philhealth: false,
-    //     philhealth_id_number: "",
-    //     pwd_id_number: "",
-
-    //     _method: undefined,
-    // });
-
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        searchFieldName("name", query);
-    };
-    const searchFieldName = (field, value) => {
-        if (value && value.trim() !== "") {
-            queryParams[field] = value;
-        } else {
-            delete queryParams[field];
-        }
-
-        if (queryParams.page) {
-            delete queryParams.page;
-        }
-        router.get(route("medical.index", queryParams));
-    };
-    const onKeyPressed = (field, e) => {
-        if (e.key === "Enter") {
-            searchFieldName(field, e.target.value);
-        } else {
-            return;
-        }
-    };
+    const search = useSearch("medical.index", queryParams);
 
     const allColumns = [
         { key: "id", label: "ID" },
@@ -372,24 +325,27 @@ export default function Index({ medical_information, puroks, queryParams }) {
                                     <ExportButton
                                         url="report/export-medical-excel"
                                         queryParams={queryParams}
-                                        label="Export Summon Records as XLSX"
+                                        label="Export Medical Records as XLSX"
                                     />
                                     <ExportButton
                                         url="report/export-medical-pdf"
                                         queryParams={queryParams}
-                                        label="Export Education Histories as PDF"
+                                        label="Export Medical Records as PDF"
                                         type="pdf"
                                         totalRecords={medical_information.total}
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
                                     <form
-                                        onSubmit={handleSearchSubmit}
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                search("name", query);
+                                            }}
                                         className="flex w-[300px] max-w-lg items-center space-x-1"
                                     >
                                         <Input
                                             type="text"
-                                            placeholder="Search Resident Name"
+                                            placeholder="Search Medical Record.."
                                             value={query}
                                             onChange={(e) =>
                                                 setQuery(e.target.value)

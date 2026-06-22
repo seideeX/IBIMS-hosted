@@ -34,6 +34,7 @@ import InputLabel from "@/Components/InputLabel";
 import InputField from "@/Components/InputField";
 import DeathDetailsSidebarModal from "./Partials/DeathDetailsSidebarModal";
 import PageHeader from "@/Components/PageHeader";
+import useSearch from "@/hooks/useSearch";
 
 export default function Index({ deaths, puroks, queryParams, residents }) {
     const breadcrumbs = [
@@ -50,6 +51,8 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
     const [deathDetails, setDeathDetails] = useState(null); //delete
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
+    const search = useSearch("death.index", queryParams);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalState, setModalState] = useState("");
     const [selectedResident, setSelectedResident] = useState(null);
@@ -68,30 +71,6 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
         }
 
         return age;
-    };
-
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        searchFieldName("name", query);
-    };
-    const searchFieldName = (field, value) => {
-        if (value && value.trim() !== "") {
-            queryParams[field] = value;
-        } else {
-            delete queryParams[field];
-        }
-
-        if (queryParams.page) {
-            delete queryParams.page;
-        }
-        router.get(route("death.index", queryParams));
-    };
-    const onKeyPressed = (field, e) => {
-        if (e.key === "Enter") {
-            searchFieldName(field, e.target.value);
-        } else {
-            return;
-        }
     };
 
     const allColumns = [
@@ -538,7 +517,10 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
                                     <form
-                                        onSubmit={handleSearchSubmit}
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            search("name", query);
+                                        }}
                                         className="flex w-[380px] max-w-lg items-center space-x-1"
                                     >
                                         <Input
