@@ -24,6 +24,13 @@ return new class extends Migration
             $table->smallInteger('founded_year')->nullable();
             $table->string('barangay_code', 20)->nullable();
             $table->enum('barangay_type', ['rural', 'urban']);
+            // GIS Fields
+            $table->json('boundary_coordinates')->nullable();
+
+            // Barangay Hall
+            $table->string('barangay_hall_address')->nullable();
+            $table->decimal('barangay_hall_latitude', 10, 8)->nullable();
+            $table->decimal('barangay_hall_longitude', 11, 8)->nullable();
             $table->timestamps();
         });
     }

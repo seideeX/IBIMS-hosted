@@ -22,6 +22,10 @@ class Barangay extends Model
         'founded_year',
         'barangay_code',
         'barangay_type',
+        'boundary_coordinates',
+        'barangay_hall_address',
+        'barangay_hall_latitude',
+        'barangay_hall_longitude'
     ];
 
     public $timestamps = true;
